@@ -14,8 +14,10 @@ namespace Tropikalna_wyspa
         [STAThread]
         static void Main()
         {
-            using (var game = new Game1())
-                game.Run();
+            var game = new DemoWyspa();
+            game.Run();
+            game.Exit();
+            game.Dispose();
         }
     }
 #endif

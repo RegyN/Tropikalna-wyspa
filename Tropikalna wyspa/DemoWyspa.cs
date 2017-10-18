@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -7,15 +8,32 @@ namespace Tropikalna_wyspa
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Game1 : Game
+    public class DemoWyspa : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        Texture2D texture;
+        Vector2 position;
 
-        public Game1()
+        public DemoWyspa()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            position = new Vector2(0, 0);
+            this.IsFixedTimeStep = true;
+            this.TargetElapsedTime = new System.TimeSpan(0, 0, 0, 0, 200);
+        }
+
+        protected override void OnActivated(object sender, EventArgs args)
+        {
+            Window.Title = "Aktywne okno";
+            base.OnActivated(sender, args);
+        }
+
+        protected override void OnDeactivated(object sender, EventArgs args)
+        {
+            Window.Title = "Nieaktywne okno";
+            base.OnActivated(sender, args);
         }
 
         /// <summary>
@@ -26,8 +44,12 @@ namespace Tropikalna_wyspa
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            texture = new Texture2D(this.GraphicsDevice, 100, 100);
+            Color[] colorData = new Color[100 * 100];
+            for (int i = 0; i < 10000; i++)
+                colorData[i] = Color.Red;
 
+            texture.SetData<Color>(colorData);
             base.Initialize();
         }
 
@@ -49,7 +71,7 @@ namespace Tropikalna_wyspa
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+            texture.Dispose();
         }
 
         /// <summary>
@@ -59,12 +81,18 @@ namespace Tropikalna_wyspa
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            if (IsActive)
+            {
+                if (GamePad.GetState(PlayerIndex.One).Buttons.Back ==
+                    ButtonState.Pressed || Keyboard.GetState().IsKeyDown(
+                    Keys.Escape))
+                    Exit();
 
-            // TODO: Add your update logic here
-
-            base.Update(gameTime);
+                position.X += 60.0f*(float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (position.X > this.GraphicsDevice.Viewport.Width)
+                    position.X = 0;
+                base.Update(gameTime);
+            }
         }
 
         /// <summary>
@@ -75,7 +103,9 @@ namespace Tropikalna_wyspa
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            spriteBatch.Begin();
+            spriteBatch.Draw(texture, position);
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
