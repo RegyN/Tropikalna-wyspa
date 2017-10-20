@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Text;
 
 namespace Tropikalna_wyspa
 {
@@ -11,12 +12,14 @@ namespace Tropikalna_wyspa
         SpriteBatch spriteBatch;
         Texture2D texture;
         Vector2 texturePos;
+        KeyboardState prevState;
 
         public DemoWyspa()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             texturePos = new Vector2(0, 0);
+            IsMouseVisible = true;
         }
 
         protected override void Initialize()
@@ -25,7 +28,7 @@ namespace Tropikalna_wyspa
             Color[] colorData = new Color[100 * 100];
             for (int i = 0; i < 10000; i++)
                 colorData[i] = Color.Red;
-
+            prevState = Keyboard.GetState();
             texture.SetData<Color>(colorData);
             base.Initialize();
         }
@@ -45,15 +48,25 @@ namespace Tropikalna_wyspa
         {
             if (IsActive)
             {
-                if (GamePad.GetState(PlayerIndex.One).Buttons.Back ==
-                    ButtonState.Pressed || Keyboard.GetState().IsKeyDown(
-                    Keys.Escape))
+                KeyboardState state = Keyboard.GetState();
+                if (state.IsKeyDown(Keys.Escape))
                     Exit();
+                if (state.IsKeyDown(Keys.A))
+                    System.Diagnostics.Debug.WriteLine("Siema");
+                if (state.IsKeyDown(Keys.Down))
+                    texturePos.Y += 10;
+                if (state.IsKeyDown(Keys.Up))
+                    texturePos.Y -= 10;
+                if (state.IsKeyDown(Keys.Left))
+                    texturePos.X -= 10;
+                if (state.IsKeyDown(Keys.Right))
+                    texturePos.X += 10;
 
-                texturePos.X += 60.0f*(float)gameTime.ElapsedGameTime.TotalSeconds;
-                if (texturePos.X > this.GraphicsDevice.Viewport.Width)
-                    texturePos.X = 0;
+                MouseState mstate = Mouse.GetState();
+                if (mstate.RightButton == ButtonState.Pressed)
+                    Exit();
                 base.Update(gameTime);
+                prevState = state;
             }
         }
 
@@ -62,11 +75,7 @@ namespace Tropikalna_wyspa
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-            spriteBatch.Draw(texture, position: new Vector2(0.0f,0.0f), color:Color.White);
-            spriteBatch.Draw(texture,
-                destinationRectangle: new Rectangle(texture.Width, texture.Height, texture.Width, texture.Height),
-                rotation: 0f / 180f * 3.1415f,
-                origin: new Vector2(texture.Width / 2, texture.Height / 2));
+            spriteBatch.Draw(texture, position: texturePos, color:Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);
