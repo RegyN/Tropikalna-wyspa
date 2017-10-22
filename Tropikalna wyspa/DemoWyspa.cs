@@ -9,20 +9,17 @@ namespace Tropikalna_wyspa
     public class DemoWyspa : Game
     {
         GraphicsDeviceManager graphics;
-        KeyboardState prevState;
-        Vector3 camTarget;
-        Vector3 camPosition;
+
+        KeyboardState prevKState;
+        MouseState prevMState;
         Matrix projectionMatrix;
         Matrix worldMatrix;
         Matrix viewMatrix;
 
-        BasicEffect basicEffect;
+        Camera3D kamera;
 
-        VertexPositionColor[] triangleVertices;
-        VertexBuffer vertexBuffer;
-
-        bool orbit;
-
+        Model palma;
+        
         public DemoWyspa()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -32,124 +29,122 @@ namespace Tropikalna_wyspa
 
         protected override void Initialize()
         {
-            prevState = Keyboard.GetState();
+            prevKState = Keyboard.GetState();
+
             base.Initialize();
 
-            //Setup camera
-            camTarget = new Vector3(0f, 0f, 0f);
-            camPosition = new Vector3(0f, 0f, -100f);
-
+            //Setup Camera
             projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
-                MathHelper.ToRadians(45f),
-                GraphicsDevice.DisplayMode.AspectRatio, 1f, 1000f);
+                               MathHelper.ToRadians(45f), graphics.
+                               GraphicsDevice.Viewport.AspectRatio, 1f, 1000f);
 
-            viewMatrix = Matrix.CreateLookAt(camPosition, camTarget, Vector3.Up);
+            worldMatrix = Matrix.CreateWorld(new Vector3(0f,0f,0f), Vector3.Forward, Vector3.Up);
 
-            worldMatrix = Matrix.CreateWorld(camTarget, Vector3.Forward, Vector3.Up);
-
-            //BasicEffect
-            basicEffect = new BasicEffect(GraphicsDevice);
-            basicEffect.Alpha = 1.0f;
-            basicEffect.VertexColorEnabled = true;
-            basicEffect.LightingEnabled = false;
-
-            //Create our triangle
-            triangleVertices = new VertexPositionColor[3];
-            triangleVertices[0] = new VertexPositionColor(new Vector3(0, 20, 0), Color.Red);
-            triangleVertices[1] = new VertexPositionColor(new Vector3(-20, -20, 0), Color.Green);
-            triangleVertices[2] = new VertexPositionColor(new Vector3(20, -20, 0), Color.Blue);
-
-            vertexBuffer = new VertexBuffer(GraphicsDevice, 
-                typeof(VertexPositionColor), 
-                3, 
-                BufferUsage.WriteOnly);
-            vertexBuffer.SetData<VertexPositionColor>(triangleVertices);
+            kamera = new Camera3D(new Vector3(0f, 5f, 15f), Vector3.Forward, Vector3.Up, projectionMatrix);
+            //PrzygotujTrojkat();
         }
-        
+
+
         protected override void LoadContent()
         {
-
+            palma = Content.Load<Model>("Palma");
         }
 
         protected override void UnloadContent()
         {
-
         }
 
         protected override void Update(GameTime gameTime)
         {
             if (IsActive)
             {
-                KeyboardState state = Keyboard.GetState();
-                if (state.IsKeyDown(Keys.Right))
-                {
-                    camPosition.X -= 1f;
-                    camTarget.X -= 1f;
-                }
-                if (state.IsKeyDown(Keys.Left))
-                {
-                    camPosition.X += 1f;
-                    camTarget.X += 1f;
-                }
-                if (state.IsKeyDown(Keys.Down))
-                {
-                    camPosition.Y -= 1f;
-                    camTarget.Y -= 1f;
-                }
-                if (state.IsKeyDown(Keys.Up))
-                {
-                    camPosition.Y += 1f;
-                    camTarget.Y += 1f;
-                }
-                if (state.IsKeyDown(Keys.OemPlus))
-                {
-                    camPosition.Z += 1f;
-                }
-                if (state.IsKeyDown(Keys.OemMinus))
-                {
-                    camPosition.Z -= 1f;
-                }
-                if(state.IsKeyDown(Keys.Space))
-                {
-                    orbit = !orbit;
-                }
-                if(orbit)
-                {
-                    Matrix rotationMatrix = Matrix.CreateRotationY(
-                        MathHelper.ToRadians(1f));
-                    camPosition = Vector3.Transform(camPosition, rotationMatrix);
-                }
-                viewMatrix = Matrix.CreateLookAt(camPosition, camTarget, Vector3.Up);
-                
-                MouseState mstate = Mouse.GetState();
+                SprawdzSterowanie();
 
                 base.Update(gameTime);
-                prevState = state;
             }
         }
 
+
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.White);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            basicEffect.Projection = projectionMatrix;
-            basicEffect.View = viewMatrix;
-            basicEffect.World = worldMatrix;
+            //RysujTrojkat();
 
-            GraphicsDevice.SetVertexBuffer(vertexBuffer);
-
-            // Wyłącz wycinanie tylnych ścian
-            RasterizerState rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
-
-            foreach (var pass in basicEffect.CurrentTechnique.Passes)
+            foreach (ModelMesh mesh in palma.Meshes)
             {
-                pass.Apply();
-                GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, 3);
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.View = kamera.ViewMatrix;
+                    effect.World = worldMatrix;
+                    effect.Projection = kamera.ProjectionMatrix;
+                    mesh.Draw();
+                }
             }
-
             base.Draw(gameTime);
+        }
+
+        private void SprawdzSterowanie()
+        {
+            KeyboardState kState = Keyboard.GetState();
+            MouseState mState = Mouse.GetState();
+
+            #region Przesuwanie kamery
+            if (kState.IsKeyDown(Keys.Right))
+            {
+                kamera.StrafeHorz(-0.1f);
+            }
+            if (kState.IsKeyDown(Keys.Left))
+            {
+                kamera.StrafeHorz(0.1f);
+            }
+            if (kState.IsKeyDown(Keys.Down))
+            {
+                kamera.StrafeVert(-0.1f);
+            }
+            if (kState.IsKeyDown(Keys.Up))
+            {
+                kamera.StrafeVert(0.1f);
+            }
+            if (kState.IsKeyDown(Keys.OemPlus) || mState.LeftButton == ButtonState.Pressed)
+            {
+                kamera.Thrust(0.3f);
+            }
+            if (kState.IsKeyDown(Keys.OemMinus) || mState.RightButton == ButtonState.Pressed)
+            {
+                kamera.Thrust(-0.3f);
+            }
+            #endregion
+
+            #region Obracanie kamery
+            if (kState.IsKeyDown(Keys.D))
+            {
+                kamera.Yaw(-1.5f);
+            }
+            if (kState.IsKeyDown(Keys.A))
+            {
+                kamera.Yaw(1.5f);
+            }
+            if (kState.IsKeyDown(Keys.S))
+            {
+                kamera.Pitch(1.5f);
+            }
+            if (kState.IsKeyDown(Keys.W))
+            {
+                kamera.Pitch(-1.5f);
+            }
+            if (kState.IsKeyDown(Keys.Q))
+            {
+                kamera.Roll(1.5f);
+            }
+            if (kState.IsKeyDown(Keys.E))
+            {
+                kamera.Roll(-1.5f);
+            }
+            #endregion
+
+            prevKState = kState;
+            prevMState = mState;
         }
     }
 }
