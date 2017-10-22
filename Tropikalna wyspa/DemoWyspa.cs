@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Tropikalna_wyspa
 {
@@ -13,8 +14,7 @@ namespace Tropikalna_wyspa
         KeyboardState prevKState;
         MouseState prevMState;
         Matrix projectionMatrix;
-        Matrix worldMatrix;
-        Matrix viewMatrix;
+        List<Object3D> obiekty;
 
         Camera3D kamera;
 
@@ -38,7 +38,9 @@ namespace Tropikalna_wyspa
                                MathHelper.ToRadians(45f), graphics.
                                GraphicsDevice.Viewport.AspectRatio, 1f, 1000f);
 
-            worldMatrix = Matrix.CreateWorld(new Vector3(0f,0f,0f), Vector3.Forward, Vector3.Up);
+
+            obiekty = new List<Object3D>();
+            obiekty.Add(new Object3D(palma, new Vector3(0f, 0f, 0f)));
 
             kamera = new Camera3D(new Vector3(0f, 5f, 15f), Vector3.Forward, Vector3.Up, projectionMatrix);
             //PrzygotujTrojkat();
@@ -70,15 +72,17 @@ namespace Tropikalna_wyspa
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             //RysujTrojkat();
-
-            foreach (ModelMesh mesh in palma.Meshes)
+            foreach (var obiekt in obiekty)
             {
-                foreach (BasicEffect effect in mesh.Effects)
+                foreach (ModelMesh mesh in obiekt.model.Meshes)
                 {
-                    effect.View = kamera.ViewMatrix;
-                    effect.World = worldMatrix;
-                    effect.Projection = kamera.ProjectionMatrix;
-                    mesh.Draw();
+                    foreach (BasicEffect effect in mesh.Effects)
+                    {
+                        effect.View = kamera.ViewMatrix;
+                        effect.World = obiekt.worldMatrix;
+                        effect.Projection = kamera.ProjectionMatrix;
+                        mesh.Draw();
+                    }
                 }
             }
             base.Draw(gameTime);
