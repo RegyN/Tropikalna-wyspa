@@ -1,0 +1,57 @@
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Primitives3D
+{
+    public class HeightMapTerrain : GeometricPrimitive
+    {
+        public HeightMapTerrain(GraphicsDevice graphicsDevice)
+            : this(graphicsDevice, 1, new float[][]{
+                                        new float[]{0f,0f},
+                                        new float[]{0f,0f}})
+        { }
+
+        public HeightMapTerrain(GraphicsDevice graphicsDevice, float size, float[][] heightMap)
+        {
+            for(int i = 0; i<heightMap.Length-1; i++)
+            {
+                for (int j = 0; j < heightMap[0].Length - 1; j++)
+                {
+                    // Wektory pokazujące kierunki krawędzi zewnętrznych kwadratu
+                    Vector3 sideLeft = new Vector3(1f, heightMap[i+1][j] - heightMap[i][j], 0f);
+                    Vector3 sideRight = new Vector3(1f, heightMap[i+1][j+1] - heightMap[i][j+1], 0f);
+                    Vector3 sideUp = new Vector3(0f, heightMap[i][j+1] - heightMap[i][j], 1f);
+                    Vector3 sideDown = new Vector3(0f, heightMap[i+1][j+1] - heightMap[i+1][j], 1f);
+
+                    // Wektory normalne obu trójkątów
+                    Vector3 normal1 = Vector3.Cross(sideLeft, sideDown);
+                    Vector3 normal2 = Vector3.Cross(sideRight, sideUp);
+
+                    // Dodaje dwie trojkatne scianki
+                    AddIndex(CurrentVertex + 0);
+                    AddIndex(CurrentVertex + 1);
+                    AddIndex(CurrentVertex + 2);
+
+                    AddIndex(CurrentVertex + 3);
+                    AddIndex(CurrentVertex + 4);
+                    AddIndex(CurrentVertex + 5);
+
+                    Vector3 upperLeftPos = new Vector3(i, heightMap[i][j], j);
+
+                    AddVertex(upperLeftPos, normal1);
+                    AddVertex(upperLeftPos + sideLeft, normal1);
+                    AddVertex(upperLeftPos + sideLeft + sideDown, normal1);
+                    AddVertex(upperLeftPos, normal2);
+                    AddVertex(upperLeftPos + sideUp + sideRight, normal2);
+                    AddVertex(upperLeftPos + sideUp, normal2);
+                }
+                InitializePrimitive(graphicsDevice);
+            }
+        }
+    }
+}

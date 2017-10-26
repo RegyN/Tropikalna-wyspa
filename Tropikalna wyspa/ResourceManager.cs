@@ -11,6 +11,17 @@ namespace Tropikalna_wyspa
 {
     class ResourceManager
     {
+        Dictionary<String, Model> modele;
+
+        public void DodajModel(Model mod, string nazwa)
+        {
+            modele.Add(nazwa, mod);
+        }
+        public Model PobierzModel(string nazwa)
+        {
+            modele.TryGetValue(nazwa, out Model wynik);
+            return wynik;
+        }
         private static readonly ResourceManager instance = new ResourceManager();
         public static ResourceManager Instance
         {
@@ -20,7 +31,8 @@ namespace Tropikalna_wyspa
             }
         }
         private ResourceManager()
-        {}
-        
+        {
+            modele = new Dictionary<string, Model>();
+        }
     }
 }

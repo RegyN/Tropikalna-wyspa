@@ -4,17 +4,20 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Text;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Primitives3D;
 
 namespace Tropikalna_wyspa
 {
     public class DemoWyspa : Game
     {
         GraphicsDeviceManager graphics;
-
+        
         KeyboardState prevKState;
         MouseState prevMState;
-        Matrix projectionMatrix;
         List<Object3D> obiekty;
+        List<GeometricPrimitive> wyspa;
+        GeometricPrimitive morze;
 
         Camera3D kamera;
 
@@ -32,18 +35,25 @@ namespace Tropikalna_wyspa
             prevKState = Keyboard.GetState();
 
             base.Initialize();
-
-            //Setup Camera
-            projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
+            
+            Matrix proj = Matrix.CreatePerspectiveFieldOfView(
                                MathHelper.ToRadians(45f), graphics.
                                GraphicsDevice.Viewport.AspectRatio, 1f, 1000f);
 
+            obiekty = new List<Object3D>
+            {
+                new Object3D(palma, new Vector3(0f, 0f, 0f)),
+                new Object3D(palma, new Vector3(2,-0.5f,2.1f), new Vector3(0.5f,1.0f,0.1f), Vector3.Backward)
+            };
 
-            obiekty = new List<Object3D>();
-            obiekty.Add(new Object3D(palma, new Vector3(0f, 0f, 0f)));
+            kamera = new Camera3D(new Vector3(0f, 5f, 15f), Vector3.Forward, Vector3.Up, proj);
 
-            kamera = new Camera3D(new Vector3(0f, 5f, 15f), Vector3.Forward, Vector3.Up, projectionMatrix);
-            //PrzygotujTrojkat();
+            wyspa = new List<GeometricPrimitive>
+            {
+                GeneratorWyspy.ZrobWyspe(GraphicsDevice, 20)
+            };
+
+            morze = new SquarePrimitive(GraphicsDevice, 200);
         }
 
 
@@ -65,19 +75,18 @@ namespace Tropikalna_wyspa
                 base.Update(gameTime);
             }
         }
-
-
+        
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            //RysujTrojkat();
+            
             foreach (var obiekt in obiekty)
             {
                 foreach (ModelMesh mesh in obiekt.model.Meshes)
                 {
                     foreach (BasicEffect effect in mesh.Effects)
                     {
+                        Debug.WriteLine("Kolor: R{0}, G{1}, B{2}", effect.DiffuseColor.X, effect.DiffuseColor.Y, effect.DiffuseColor.Z);
                         effect.View = kamera.ViewMatrix;
                         effect.World = obiekt.worldMatrix;
                         effect.Projection = kamera.ProjectionMatrix;
@@ -85,6 +94,13 @@ namespace Tropikalna_wyspa
                     }
                 }
             }
+
+            foreach (var ksztalt in wyspa)
+            {
+                ksztalt.Draw(Matrix.CreateWorld(new Vector3(-10,1,-10), Vector3.Forward, Vector3.Up), kamera.ViewMatrix, kamera.ProjectionMatrix, Color.LightYellow);
+            }
+
+            morze.Draw(Matrix.CreateWorld(new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up), kamera.ViewMatrix, kamera.ProjectionMatrix, Color.CornflowerBlue);
             base.Draw(gameTime);
         }
 
@@ -149,6 +165,17 @@ namespace Tropikalna_wyspa
 
             prevKState = kState;
             prevMState = mState;
+        }
+    }
+    public static class Program
+    {
+        [STAThread]
+        static void Main()
+        {
+            var game = new DemoWyspa();
+            game.Run();
+            game.Exit();
+            game.Dispose();
         }
     }
 }

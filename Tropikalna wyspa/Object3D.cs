@@ -15,9 +15,13 @@ namespace Tropikalna_wyspa
         public Matrix worldMatrix { get; private set; }
 
         public Object3D(Model mod, Vector3 poz)
+            :this(mod, poz, Vector3.Up, Vector3.Forward)
+        {}
+
+        public Object3D(Model mod, Vector3 poz, Vector3 up, Vector3 forward)
         {
             model = mod;
-            worldMatrix = Matrix.CreateWorld(poz, Vector3.Forward, Vector3.Up);
+            worldMatrix = Matrix.CreateWorld(poz, forward, up);
         }
     }
 }
