@@ -85,10 +85,6 @@ namespace Primitives3D
                                         new float[]{0f,0.1f}}));
             primitives.Add(new SquarePrimitive(GraphicsDevice));
             primitives.Add(new CubePrimitive(GraphicsDevice));
-            primitives.Add(new SpherePrimitive(GraphicsDevice));
-            primitives.Add(new CylinderPrimitive(GraphicsDevice));
-            primitives.Add(new TorusPrimitive(GraphicsDevice));
-            primitives.Add(new TeapotPrimitive(GraphicsDevice));
 
             wireFrameState = new RasterizerState()
             {
