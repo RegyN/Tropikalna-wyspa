@@ -19,6 +19,8 @@ namespace Tropikalna_wyspa
         List<GeometricPrimitive> wyspa;
         GeometricPrimitive morze;
 
+        Vector3 swiatloKierunkowe;
+
         Camera3D kamera;
 
         Model palma;
@@ -39,6 +41,8 @@ namespace Tropikalna_wyspa
             Matrix proj = Matrix.CreatePerspectiveFieldOfView(
                                MathHelper.ToRadians(45f), graphics.
                                GraphicsDevice.Viewport.AspectRatio, 1f, 1000f);
+
+            swiatloKierunkowe = new Vector3(1f,1f,1f);
 
             obiekty = new List<Object3D>
             {
@@ -95,9 +99,20 @@ namespace Tropikalna_wyspa
                 }
             }
 
+            BasicEffect WyspaFX = new BasicEffect(GraphicsDevice);
+            WyspaFX.World = Matrix.CreateWorld(new Vector3(-10, 1, -10), Vector3.Forward, Vector3.Up);
+            WyspaFX.Projection = kamera.ProjectionMatrix;
+            WyspaFX.View = kamera.ViewMatrix;
+            WyspaFX.DiffuseColor = Color.LightYellow.ToVector3();
+            WyspaFX.LightingEnabled = true;
+            WyspaFX.DirectionalLight0.Enabled = true;
+            WyspaFX.DirectionalLight0.Direction = swiatloKierunkowe;
+            WyspaFX.DirectionalLight0.DiffuseColor = Color.GhostWhite.ToVector3()/2;
+            WyspaFX.PreferPerPixelLighting = true;
+
             foreach (var ksztalt in wyspa)
             {
-                ksztalt.Draw(Matrix.CreateWorld(new Vector3(-10,1,-10), Vector3.Forward, Vector3.Up), kamera.ViewMatrix, kamera.ProjectionMatrix, Color.LightYellow);
+                ksztalt.Draw(WyspaFX);
             }
 
             morze.Draw(Matrix.CreateWorld(new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up), kamera.ViewMatrix, kamera.ProjectionMatrix, Color.CornflowerBlue);
