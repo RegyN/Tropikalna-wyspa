@@ -80,9 +80,7 @@ namespace Primitives3D
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            primitives.Add(new HeightMapTerrain(GraphicsDevice, 1, new float[][]{
-                                        new float[]{0f,-0.1f},
-                                        new float[]{0f,0.1f}}));
+            primitives.Add(new HeightMapTerrain(GraphicsDevice));
             primitives.Add(new SquarePrimitive(GraphicsDevice));
             primitives.Add(new CubePrimitive(GraphicsDevice));
 

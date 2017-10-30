@@ -11,12 +11,18 @@ namespace Primitives3D
     public class HeightMapTerrain : GeometricPrimitive
     {
         public HeightMapTerrain(GraphicsDevice graphicsDevice)
-            : this(graphicsDevice, 1, new float[][]{
-                                        new float[]{0f,0f},
-                                        new float[]{0f,0f}})
+            : this(graphicsDevice, 1, 
+                      new float[][]{
+                          new float[]{0f,0f},
+                          new float[]{0f,0f}
+                      },
+                      new Vector3[][]{
+                          new Vector3[]{ new Vector3(0, 1, 0), new Vector3(0, 1, 0) },
+                          new Vector3[]{ new Vector3(0, 1, 0), new Vector3(0, 1, 0) }
+                      })
         { }
 
-        public HeightMapTerrain(GraphicsDevice graphicsDevice, float size, float[][] heightMap)
+        public HeightMapTerrain(GraphicsDevice graphicsDevice, float size, float[][] heightMap, Vector3[][] normalMap)
         {
             for(int i = 0; i<heightMap.Length-1; i++)
             {
@@ -43,12 +49,12 @@ namespace Primitives3D
 
                     Vector3 upperLeftPos = new Vector3(i, heightMap[i][j], j);
 
-                    AddVertex(upperLeftPos, normal1);
-                    AddVertex(upperLeftPos + sideLeft, normal1);
-                    AddVertex(upperLeftPos + sideLeft + sideDown, normal1);
-                    AddVertex(upperLeftPos, normal2);
-                    AddVertex(upperLeftPos + sideUp + sideRight, normal2);
-                    AddVertex(upperLeftPos + sideUp, normal2);
+                    AddVertex(upperLeftPos, normalMap[i][j]);
+                    AddVertex(upperLeftPos + sideLeft, normalMap[i+1][j]);
+                    AddVertex(upperLeftPos + sideLeft + sideDown, normalMap[i+1][j+1]);
+                    AddVertex(upperLeftPos, normalMap[i][j]);
+                    AddVertex(upperLeftPos + sideUp + sideRight, normalMap[i+1][j+1]);
+                    AddVertex(upperLeftPos + sideUp, normalMap[i][j+1]);
                 }
                 InitializePrimitive(graphicsDevice);
             }

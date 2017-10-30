@@ -48,6 +48,7 @@
     <Compile Include="Primitives3DGame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VertexPositionNormal.cs" />
+    <Compile Include="VertexPositionNormalColor.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

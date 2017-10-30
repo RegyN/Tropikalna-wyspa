@@ -32,3 +32,9 @@
 /processorParam:TextureFormat=Compressed
 /build:Palma.3ds
 
+#begin PhongShader.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:PhongShader.fx
+

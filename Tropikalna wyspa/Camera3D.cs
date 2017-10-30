@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Tropikalna_wyspa
 {
-    class Camera3D
+    public class Camera3D
     {
         public Vector3 Position { get; private set; }
         public Vector3 Up { get; private set; }
