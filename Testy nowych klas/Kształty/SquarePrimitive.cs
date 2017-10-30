@@ -13,10 +13,10 @@ namespace Primitives3D
     public class SquarePrimitive : GeometricPrimitive
     {
         public SquarePrimitive(GraphicsDevice graphicsDevice)
-            :this(graphicsDevice, 1)
+            :this(graphicsDevice, 1, Color.CornflowerBlue)
         {}
 
-        public SquarePrimitive(GraphicsDevice graphicsDevice, float size)
+        public SquarePrimitive(GraphicsDevice graphicsDevice, float size, Color color)
         {
             // Plane ma dwie ścianki, więc każdej potrzebny jest wektor normalny.
             Vector3[] normals =
@@ -41,10 +41,10 @@ namespace Primitives3D
                 AddIndex(CurrentVertex + 3);
 
                 // Cztery narożniki na ściankę
-                AddVertex((Vector3.Zero - side1 - side2) * size / 2, normal);
-                AddVertex((Vector3.Zero - side1 + side2) * size / 2, normal);
-                AddVertex((Vector3.Zero + side1 + side2) * size / 2, normal);
-                AddVertex((Vector3.Zero + side1 - side2) * size / 2, normal);
+                AddVertex((Vector3.Zero - side1 - side2) * size / 2, normal, color);
+                AddVertex((Vector3.Zero - side1 + side2) * size / 2, normal, color);
+                AddVertex((Vector3.Zero + side1 + side2) * size / 2, normal, color);
+                AddVertex((Vector3.Zero + side1 - side2) * size / 2, normal, color);
             }
             InitializePrimitive(graphicsDevice);
         }

@@ -11,9 +11,9 @@ namespace Tropikalna_wyspa
 {
     class GeneratorWyspy
     {
-        public static HeightMapTerrain ZrobWyspe(GraphicsDevice gd, int size)
+        public static HeightMapTerrain ZrobWyspe(GraphicsDevice gd, int size, Color color)
         {
-            return new HeightMapTerrain(gd, 1, GenerujMapeWysokosci(size), GenerujMapeNormali(size));
+            return new HeightMapTerrain(gd, 1, GenerujMapeWysokosci(size), GenerujMapeNormali(size), color);
         }
 
         private static float[][] GenerujMapeWysokosci(int size)

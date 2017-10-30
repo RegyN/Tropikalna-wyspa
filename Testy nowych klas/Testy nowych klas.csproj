@@ -41,13 +41,11 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Kształty\CubePrimitive.cs" />
     <Compile Include="Kształty\GeometricPrimitive.cs" />
     <Compile Include="Kształty\SquarePrimitive.cs" />
     <Compile Include="Kształty\HeightMapTerrain.cs" />
     <Compile Include="Primitives3DGame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VertexPositionNormal.cs" />
     <Compile Include="VertexPositionNormalColor.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -57,9 +57,9 @@ namespace Tropikalna_wyspa
 
             kamera = new Camera3D(new Vector3(0f, 5f, 15f), Vector3.Forward, Vector3.Up, proj);
 
-            wyspa = GeneratorWyspy.ZrobWyspe(GraphicsDevice, 20);
+            wyspa = GeneratorWyspy.ZrobWyspe(GraphicsDevice, 20, Color.SandyBrown);
 
-            morze = new SquarePrimitive(GraphicsDevice, 200);
+            morze = new SquarePrimitive(GraphicsDevice, 200, Color.CornflowerBlue);
         }
 
 

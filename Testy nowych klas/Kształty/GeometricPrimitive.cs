@@ -30,7 +30,7 @@ namespace Primitives3D
 
         // During the process of constructing a primitive model, vertex
         // and index data is stored on the CPU in these managed lists.
-        List<VertexPositionNormal> vertices = new List<VertexPositionNormal>();
+        List<VertexPositionNormalColor> vertices = new List<VertexPositionNormalColor>();
         List<ushort> indices = new List<ushort>();
 
 
@@ -51,9 +51,9 @@ namespace Primitives3D
         /// Adds a new vertex to the primitive model. This should only be called
         /// during the initialization process, before InitializePrimitive.
         /// </summary>
-        protected void AddVertex(Vector3 position, Vector3 normal)
+        protected void AddVertex(Vector3 position, Vector3 normal, Color col)
         {
-            vertices.Add(new VertexPositionNormal(position, normal));
+            vertices.Add(new VertexPositionNormalColor(position, normal, col));
         }
 
 
@@ -90,7 +90,7 @@ namespace Primitives3D
 
             // Create a vertex buffer, and copy our vertex data into it.
             vertexBuffer = new VertexBuffer(graphicsDevice,
-                                            typeof(VertexPositionNormal),
+                                            typeof(VertexPositionNormalColor),
                                             vertices.Count, BufferUsage.None);
 
             vertexBuffer.SetData(vertices.ToArray());

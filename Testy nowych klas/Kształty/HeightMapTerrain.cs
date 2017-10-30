@@ -19,10 +19,11 @@ namespace Primitives3D
                       new Vector3[][]{
                           new Vector3[]{ new Vector3(0, 1, 0), new Vector3(0, 1, 0) },
                           new Vector3[]{ new Vector3(0, 1, 0), new Vector3(0, 1, 0) }
-                      })
+                      },
+                      Color.SandyBrown)
         { }
 
-        public HeightMapTerrain(GraphicsDevice graphicsDevice, float size, float[][] heightMap, Vector3[][] normalMap)
+        public HeightMapTerrain(GraphicsDevice graphicsDevice, float size, float[][] heightMap, Vector3[][] normalMap, Color color)
         {
             for(int i = 0; i<heightMap.Length-1; i++)
             {
@@ -49,12 +50,12 @@ namespace Primitives3D
 
                     Vector3 upperLeftPos = new Vector3(i, heightMap[i][j], j);
 
-                    AddVertex(upperLeftPos, normalMap[i][j]);
-                    AddVertex(upperLeftPos + sideLeft, normalMap[i+1][j]);
-                    AddVertex(upperLeftPos + sideLeft + sideDown, normalMap[i+1][j+1]);
-                    AddVertex(upperLeftPos, normalMap[i][j]);
-                    AddVertex(upperLeftPos + sideUp + sideRight, normalMap[i+1][j+1]);
-                    AddVertex(upperLeftPos + sideUp, normalMap[i][j+1]);
+                    AddVertex(upperLeftPos, normalMap[i][j], color);
+                    AddVertex(upperLeftPos + sideLeft, normalMap[i+1][j], color);
+                    AddVertex(upperLeftPos + sideLeft + sideDown, normalMap[i+1][j+1], color);
+                    AddVertex(upperLeftPos, normalMap[i][j], color);
+                    AddVertex(upperLeftPos + sideUp + sideRight, normalMap[i+1][j+1], color);
+                    AddVertex(upperLeftPos + sideUp, normalMap[i][j+1], color);
                 }
                 InitializePrimitive(graphicsDevice);
             }

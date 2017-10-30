@@ -82,7 +82,6 @@ namespace Primitives3D
 
             primitives.Add(new HeightMapTerrain(GraphicsDevice));
             primitives.Add(new SquarePrimitive(GraphicsDevice));
-            primitives.Add(new CubePrimitive(GraphicsDevice));
 
             wireFrameState = new RasterizerState()
             {
