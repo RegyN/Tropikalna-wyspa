@@ -1,11 +1,11 @@
-﻿float4x4 WorldMatrix;
+﻿float4x4 WorldMatrix : WORLD;
 float4x4 ViewMatrix;
 float4x4 ProjectionMatrix;
 
 float4 AmbienceColor;
 
 // For Diffuse Lightning
-float4x4 WorldInverseTransposeMatrix;
+float4x4 WorldInvTransMat;
 float3 PointLightPosition;
 float4 PointLightColor;
 float3 DiffuseLightDirection;
@@ -16,6 +16,7 @@ struct VertexShaderInput
 	float4 Position : POSITION0;
 	// For Diffuse Lightning
 	float4 NormalVector : NORMAL0;
+	//float4 Color : COLOR0;
 };
 
 struct VertexShaderOutput
@@ -34,7 +35,7 @@ VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
 	output.Position = mul(viewPosition, ProjectionMatrix);
 
 	// For Diffuse Lightning
-	float4 normal = normalize(mul(input.NormalVector, WorldInverseTransposeMatrix));
+	float4 normal = normalize(mul(input.NormalVector, WorldInvTransMat));
 	float lightIntensity = dot(normal, DiffuseLightDirection);
 	output.VertexColor = saturate(DiffuseColor * lightIntensity);
 

@@ -15,40 +15,82 @@ namespace Tropikalna_wyspa
         {
             set { efekt.Parameters["ViewMatrix"].SetValue(value); }
         }
+        public Matrix worldMatrix
+        {
+            set { efekt.Parameters["WorldMatrix"].SetValue(value); }
+        }
         public Matrix projectionMatrix
         {
             set { efekt.Parameters["ProjectionMatrix"].SetValue(value); }
         }
-        public Matrix worldMatrix
+        public Matrix WorldInverseTransposeMatrix
         {
-            set { efekt.Parameters["WorldMatrix"].SetValue(value); }
+            set { efekt.Parameters["WorldInvTransMat"].SetValue(value); }
         }
         public Color diffuseColor
         {
             set
             {
                 Vector4 a = new Vector4(value.R/255f, value.G/255f, value.B/255f, value.A/255f );
-                efekt.Parameters["DiffuseColor"].SetValue(a);
+                efekt.Parameters["surfaceColor"].SetValue(a);
+            }
+        }
+        public Vector3 viewPosition
+        {
+            set
+            {
+                efekt.Parameters["ViewPosition"].SetValue(value);
             }
         }
         public Vector3 diffuseLightDirection
         {
             set
             {
-                efekt.Parameters["DiffuseLightDirection"].SetValue(value);
+                efekt.Parameters["dirLightDir"].SetValue(value);
             }
         }
-        public Color ambientColor
+        public Color diffuseLightColor
         {
             set
             {
-                Vector4 a = new Vector4(value.R/255f, value.G/255f, value.B/255f, value.A/255f );
-                efekt.Parameters["AmbienceColor"].SetValue(a);
+                Vector3 a = new Vector3(value.R/255f, value.G/255f, value.B/255f);
+                efekt.Parameters["dirLightColor"].SetValue(a);
             }
         }
-        public Matrix WorldInverseTransposeMatrix
+        public Vector3 materialEmissive
         {
-            set { efekt.Parameters["WorldInverseTransposeMatrix"].SetValue(value); }
+            set
+            {
+                efekt.Parameters["materialEmissive"].SetValue(value);
+            }
+        }
+        public Vector3 materialAmbient
+        {
+            set
+            {
+                efekt.Parameters["materialAmbient"].SetValue(value);
+            }
+        }
+        public Vector3 materialDiffuse
+        {
+            set
+            {
+                efekt.Parameters["materialDiffuse"].SetValue(value);
+            }
+        }
+        public Vector3 materialSpecular
+        {
+            set
+            {
+                efekt.Parameters["materialSpecular"].SetValue(value);
+            }
+        }
+        public float materialPower
+        {
+            set
+            {
+                efekt.Parameters["materialPower"].SetValue(value);
+            }
         }
 
         public Shader(Effect ef)

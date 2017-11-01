@@ -22,8 +22,7 @@ namespace Tropikalna_wyspa
         Vector3 swiatloPunktowe;
 
         Camera3D kamera;
-
-        Model palma;
+        
         Shader phong;
         
         public DemoWyspa()
@@ -35,43 +34,56 @@ namespace Tropikalna_wyspa
 
         protected override void Initialize()
         {
+            PrzygotujOkno();
+            
+            base.Initialize();
+
+            swiatloKierunkowe = new Vector3(1f, -1f, -1f);
+            swiatloPunktowe = new Vector3(-2f, .4f, 2f);
+
+            prevKState = Keyboard.GetState();
+
+            PrzygotujKamere();
+            PrzygotujObiekty();
+        }
+
+        private void PrzygotujOkno()
+        {
             graphics.PreferredBackBufferHeight = 720;
             graphics.PreferredBackBufferWidth = 1366;
             graphics.ApplyChanges();
+        }
 
-            prevKState = Keyboard.GetState();
-            
-            base.Initialize();
-            
-            Matrix proj = Matrix.CreatePerspectiveFieldOfView(
-                               MathHelper.ToRadians(50f), graphics.
-                               GraphicsDevice.Viewport.AspectRatio, 1f, 50f);
-
-            swiatloKierunkowe = new Vector3(1f,-1f,1f);
-
+        private void PrzygotujObiekty()
+        {
             obiekty = new List<Object3D>
             {
-                new Object3D(palma, new Vector3(0f, 0.6f, 0f), new Vector3(-0.1f,1.0f,-0.1f), Vector3.Forward),
-                new Object3D(palma, new Vector3(2,-0.5f,2.1f), new Vector3(0.5f,1.0f,0.1f), Vector3.Backward)
+                new Skrzynka(Content, new Vector3(1f,.6f,4.5f), new Vector3(0f,1f,0.55f), new Vector3(-1f,0.1f,0.07f)),
+                new Krysztal(Content, (swiatloPunktowe + new Vector3(0f,-.4f,0f)), new Vector3(0.3f,1f,0f), new Vector3(-1f,0.1f,0.07f)),
+                new Palma(Content, new Vector3(0f, 0.6f, 0f), new Vector3(-0.1f,1.0f,-0.1f), Vector3.Forward),
+                new Palma(Content, new Vector3(2,-0.5f,2.1f), new Vector3(0.5f,1.0f,0.1f), Vector3.Backward)
             };
-
-            kamera = new Camera3D(new Vector3(0f, 5f, 15f), Vector3.Forward, Vector3.Up, proj);
 
             wyspa = GeneratorWyspy.ZrobWyspe(GraphicsDevice, 20, Color.SandyBrown);
 
             morze = new SquarePrimitive(GraphicsDevice, 200, Color.CornflowerBlue);
         }
 
+        private void PrzygotujKamere()
+        {
+            Matrix proj = Matrix.CreatePerspectiveFieldOfView(
+                                           MathHelper.ToRadians(50f), graphics.
+                                           GraphicsDevice.Viewport.AspectRatio, 1f, 5000f);
+
+            kamera = new Camera3D(new Vector3(0f, 5f, 15f), Vector3.Forward, Vector3.Up, proj);
+        }
 
         protected override void LoadContent()
         {
-            palma = Content.Load<Model>("Palma");
-            phong = new Shader(Content.Load<Effect>("PhongShader"));
+            phong = new Shader(Content.Load<Effect>("MyPhong"));
         }
 
-        protected override void UnloadContent()
-        {
-        }
+        protected override void UnloadContent() => Content.Unload();
 
         protected override void Update(GameTime gameTime)
         {
@@ -97,7 +109,7 @@ namespace Tropikalna_wyspa
                         effect.World = obiekt.worldMatrix;
                         effect.Projection = kamera.ProjectionMatrix;
                         effect.LightingEnabled = true;
-                        effect.AmbientLightColor = Color.White.ToVector3()/2;
+                        effect.AmbientLightColor = Color.White.ToVector3() / 2;
                         effect.DirectionalLight0.Direction = swiatloKierunkowe;
                         effect.DirectionalLight0.DiffuseColor = Color.White.ToVector3();
                         mesh.Draw();
@@ -106,16 +118,25 @@ namespace Tropikalna_wyspa
             }
 
             phong.viewMatrix = kamera.ViewMatrix;
-            phong.worldMatrix = Matrix.CreateWorld(new Vector3(-10, 1.5f, -10), Vector3.Forward, Vector3.Up);
             phong.projectionMatrix = kamera.ProjectionMatrix;
-            Matrix worldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-10, 1.5f, -10), Vector3.Forward, Vector3.Up)));
-            phong.WorldInverseTransposeMatrix = worldInverseTransposeMatrix;
-            phong.ambientColor = Color.Gray;
-            phong.diffuseColor = Color.SandyBrown;
+            phong.worldMatrix = Matrix.CreateWorld(new Vector3(-10, 1.5f, -10), Vector3.Forward, Vector3.Up);
+            phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-10, 1.5f, -10), Vector3.Forward, Vector3.Up)));
+            phong.diffuseColor = Color.Green;
+            phong.viewPosition = kamera.Position;
             phong.diffuseLightDirection = swiatloKierunkowe;
+            phong.diffuseLightColor = Color.White;
+            phong.materialEmissive = new Vector3(0f, 0f, 0f);
+            phong.materialAmbient = new Vector3(1f, 1f, 1f)/3;
+            phong.materialDiffuse = new Vector3(1f, 1f, 1f);
+            phong.materialSpecular = Color.LightYellow.ToVector3();
+            phong.materialPower = 50f;
+
+
             wyspa.Draw(phong.efekt);
 
-            morze.Draw(Matrix.CreateWorld(new Vector3(0, 0, 0), Vector3.Forward, Vector3.Up), kamera.ViewMatrix, kamera.ProjectionMatrix, Color.CornflowerBlue);
+            phong.worldMatrix = Matrix.CreateWorld(new Vector3(0f, 0f, 0f), Vector3.Forward, Vector3.Up);
+            phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(0f, 0f, 0f), Vector3.Forward, Vector3.Up)));
+            morze.Draw(phong.efekt);
             base.Draw(gameTime);
         }
 
@@ -141,11 +162,11 @@ namespace Tropikalna_wyspa
             {
                 kamera.StrafeVert(6f * gameTime.ElapsedGameTime.Milliseconds / 1000);
             }
-            if (kState.IsKeyDown(Keys.OemPlus) || mState.LeftButton == ButtonState.Pressed)
+            if (kState.IsKeyDown(Keys.Z) || mState.LeftButton == ButtonState.Pressed)
             {
                 kamera.Thrust(20f * gameTime.ElapsedGameTime.Milliseconds / 1000);
             }
-            if (kState.IsKeyDown(Keys.OemMinus) || mState.RightButton == ButtonState.Pressed)
+            if (kState.IsKeyDown(Keys.X) || mState.RightButton == ButtonState.Pressed)
             {
                 kamera.Thrust(-20f * gameTime.ElapsedGameTime.Milliseconds / 1000);
             }

@@ -41,12 +41,15 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Camera3D.cs" />
+    <Compile Include="Obiekty\Camera3D.cs" />
     <Compile Include="DemoWyspa.cs" />
     <Compile Include="GeneratorWyspy.cs" />
-    <Compile Include="Object3D.cs" />
+    <Compile Include="Obiekty\Krysztal.cs" />
+    <Compile Include="Obiekty\Object3D.cs" />
+    <Compile Include="Obiekty\Palma.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shader.cs" />
+    <Compile Include="Obiekty\Skrzynka.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">
@@ -56,8 +59,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\MyPhong.fx" />
     <Content Include="Content\PhongShader.fx" />
-    <Content Include="Content\PhongWzorzec.fx" />
+    <Content Include="Content\PhongStaticColor.fx" />
     <Content Include="Icon.ico" />
   </ItemGroup>
   <ItemGroup>

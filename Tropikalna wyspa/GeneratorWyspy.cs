@@ -48,7 +48,7 @@ namespace Tropikalna_wyspa
         {
             float X = (float)x - (float)offset;
             float Y = (float)y - (float)offset;
-            var ret = new Vector3(1*X/10,1,1*Y/10);
+            var ret = Vector3.Normalize(new Vector3(1*X/10,1,1*Y/10));
             return ret;
         }
 
