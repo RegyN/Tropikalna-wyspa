@@ -88,3 +88,9 @@
 /processorParam:DebugMode=Auto
 /build:PhongStaticColor.fx
 
+#begin NewPhong.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:NewPhong.fx
+

@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\MyPhong.fx" />
+    <Content Include="Content\NewPhong.fx" />
     <Content Include="Content\PhongShader.fx" />
     <Content Include="Content\PhongStaticColor.fx" />
     <Content Include="Icon.ico" />

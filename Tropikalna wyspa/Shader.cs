@@ -53,7 +53,7 @@ namespace Tropikalna_wyspa
         {
             set
             {
-                Vector3 a = new Vector3(value.R/255f, value.G/255f, value.B/255f);
+                Vector4 a = new Vector4(value.R/255f, value.G/255f, value.B/255f, value.A/255f);
                 efekt.Parameters["dirLightColor"].SetValue(a);
             }
         }
@@ -90,6 +90,41 @@ namespace Tropikalna_wyspa
             set
             {
                 efekt.Parameters["materialPower"].SetValue(value);
+            }
+        }
+        public float specularIntensity
+        {
+            set
+            {
+                efekt.Parameters["specularIntensity"].SetValue(value);
+            }
+        }
+        public float pointLightFalloff
+        {
+            set
+            {
+                efekt.Parameters["pointLightFalloff"].SetValue(value);
+            }
+        }
+        public float pointLightRange
+        {
+            set
+            {
+                efekt.Parameters["pointLightRange"].SetValue(value);
+            }
+        }
+        public Vector3 pointLightPos
+        {
+            set
+            {
+                efekt.Parameters["pointLightPos"].SetValue(value);
+            }
+        }
+        public Vector4 pointLightColor
+        {
+            set
+            {
+                efekt.Parameters["pointLightColor"].SetValue(value);
             }
         }
 

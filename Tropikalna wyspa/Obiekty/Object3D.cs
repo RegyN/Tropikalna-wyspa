@@ -16,13 +16,14 @@ namespace Tropikalna_wyspa
         {
             get
             {
-                return Matrix.CreateScale(scale) * Matrix.CreateWorld(position, forwardDirection, upDirection) ;
+                return Matrix.CreateScale(scale) * Matrix.CreateWorld(position, forwardDirection, upDirection);
             }
         }
         public float scale;
         public Vector3 position;
         public Vector3 upDirection;
         public Vector3 forwardDirection;
+        public Shader shader;
 
         public Object3D(Model mod, Vector3 poz)
             :this(mod, poz, Vector3.Up, Vector3.Forward)
@@ -35,6 +36,18 @@ namespace Tropikalna_wyspa
             forwardDirection = forward;
             upDirection = up;
             position = poz;
+        }
+
+        public void Draw()
+        {
+            for (int i = 0; i < model.Meshes.Count; i++)
+            {
+                ModelMesh mesh = model.Meshes[i];
+                foreach (var part in mesh.MeshParts)
+                {
+                    mesh.Draw();
+                }
+            }
         }
     }
 }

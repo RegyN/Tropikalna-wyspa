@@ -26,7 +26,7 @@ float  materialPower : SPECULARPOWER;
 struct VS_INPUT {
 	float4 position : POSITION;		// Vertex position in object space
 	float3 normal	: NORMAL;       // Vertex normal in object space
-	//float4 color	: COLOR0;
+	float4 color	: COLOR0;
 };
 
 // Vertex Shader Output Structure
@@ -57,23 +57,23 @@ VS_OUTPUT VS(VS_INPUT IN)
 	float3 worldPos = mul(IN.position, WorldMatrix).xyz;
 	OUT.view = ViewPosition - worldPos;
 
-	OUT.color = surfaceColor;
+	OUT.color = IN.color;
 
 	return OUT;
 }
 
 float4 WyznaczKierunkowe(float4 col, float3 norm, float3 vi)
 {
-	float diffuseIntensity = saturate(dot(norm, normalize(-dirLightDir)));
+	float diffuseIntensity = saturate( dot ( norm, normalize( -dirLightDir ) ) );
 	float4 diffuse = diffuseIntensity * dirLightColor * col;
 
 	float3 dirLight = normalize(-dirLightDir);
-	float3 view = normalize(vi);
-	float3 normal = normalize(norm);
-	float3 halfway = normalize(dirLight + view);
+	float3 view = normalize( vi);
+	float3 normal = normalize( norm);
+	float3 halfway = normalize( dirLight + view);
 
-	float4 specular = saturate(dirLightColor * col * specularIntensity
-		* pow(saturate(dot(normal, halfway)), materialPower));
+	float4 specular = saturate( dirLightColor * col * specularIntensity
+		* pow( saturate( dot( normal, halfway)), materialPower));
 
 	return (diffuse + specular);
 }
@@ -81,11 +81,11 @@ float4 WyznaczKierunkowe(float4 col, float3 norm, float3 vi)
 float4 WyznaczPunktowe(float4 col, float3 norm, float3 vi, float4 pos)
 {
 	float3 lightVector = pointLightPos - pos;
-	float lightDist = length(lightVector);
-	float3 directionToLight = normalize(-lightVector);
+	float lightDist = length( lightVector);
+	float3 directionToLight = normalize( -lightVector);
 
-	float baseIntensity = pow(saturate((pointLightRange - lightDist) / pointLightRange), pointLightFalloff);
-	float diffuseIntensity = saturate(dot(norm, -directionToLight));
+	float baseIntensity = pow( saturate( (pointLightRange - lightDist) / pointLightRange), pointLightFalloff);
+	float diffuseIntensity = saturate( dot( norm, -directionToLight) );
 	float4 diffuse = diffuseIntensity * pointLightColor * col;
 	//halfway = normalize(-directionToLight + view);
 
@@ -100,19 +100,19 @@ float4 WyznaczPunktowe2(float4 col, float3 norm, float3 vi, float4 pos)
 	float3 r = reflect(-s, n);
 
 	float sDotN = max(dot(s, n), 0.0);
-	float4 diffuse = col * materialDiffuse * sDotN;
+	float4 diffuse = col * materialDiffuse * sDotN ;
 
 	return diffuse;
 }
 
 // Pixel Shader Function
 float4 PS(PS_INPUT IN) : COLOR{
-
+	
 	float4 kolorKier = WyznaczKierunkowe(IN.color, IN.normal, IN.view);
 
 	float4 kolorPoint = WyznaczPunktowe(IN.color, IN.normal, IN.view, IN.position);
 
-	float4 kolor = kolorPoint + kolorKier;
+	float4 kolor = kolorPoint+kolorKier;
 	kolor.a = 1.0f;
 	return kolor;
 }
