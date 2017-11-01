@@ -24,6 +24,7 @@ namespace Tropikalna_wyspa
             shader.materialSpecular = Color.LightYellow.ToVector3();
             shader.materialPower = 50f;
             shader.specularIntensity = 1f;
+            shader.diffuseColor = Color.Gray;
         }
     }
 }

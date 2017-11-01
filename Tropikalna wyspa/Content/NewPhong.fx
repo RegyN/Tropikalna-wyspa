@@ -51,7 +51,7 @@ VS_OUTPUT VS(VS_INPUT IN)
 	OUT.position2 = mul(viewPosition, ProjectionMatrix);
 
 	// Calculate the normal vector
-	OUT.normal = mul(WorldInvTransMat, IN.normal);
+	OUT.normal = mul(IN.normal, WorldInvTransMat);
 
 	// Calculate the view vector
 	float3 worldPos = mul(IN.position, WorldMatrix).xyz;
@@ -83,13 +83,17 @@ float4 WyznaczPunktowe(float4 col, float3 norm, float3 vi, float4 pos)
 	float3 lightVector = pointLightPos - pos;
 	float lightDist = length( lightVector);
 	float3 directionToLight = normalize( -lightVector);
+	float3 view = normalize(vi);
+	float3 normal = normalize(norm);
 
 	float baseIntensity = pow( saturate( (pointLightRange - lightDist) / pointLightRange), pointLightFalloff);
 	float diffuseIntensity = saturate( dot( norm, -directionToLight) );
 	float4 diffuse = diffuseIntensity * pointLightColor * col;
-	//halfway = normalize(-directionToLight + view);
+	float3 halfway = normalize(-directionToLight + view);
+	float4 specular = saturate(pointLightColor * col * specularIntensity
+		* pow(saturate(dot(normal, halfway)), materialPower));
 
-	return baseIntensity * diffuse;
+	return baseIntensity * (diffuse + specular);
 }
 
 float4 WyznaczPunktowe2(float4 col, float3 norm, float3 vi, float4 pos)

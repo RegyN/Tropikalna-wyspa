@@ -75,6 +75,7 @@ float4 WyznaczKierunkowe(float4 col, float3 norm, float3 vi)
 	float4 specular = saturate(dirLightColor * col * specularIntensity
 		* pow(saturate(dot(normal, halfway)), materialPower));
 
+
 	return (diffuse + specular);
 }
 

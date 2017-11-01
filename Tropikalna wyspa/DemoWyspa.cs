@@ -17,6 +17,7 @@ namespace Tropikalna_wyspa
         List<Object3D> obiekty;
         GeometricPrimitive wyspa;
         GeometricPrimitive morze;
+        Object3D krysztal;
 
         Vector3 swiatloKierunkowe;
         Vector3 swiatloPunktowe;
@@ -69,16 +70,18 @@ namespace Tropikalna_wyspa
                 new Palma(Content, new Vector3(9.5f,-0.5f,9.6f), new Vector3(0.5f,1.0f,0.1f), Vector3.Backward)
             };
 
+            krysztal = obiekty[1];
+
             wyspa = GeneratorWyspy.ZrobWyspe(GraphicsDevice, 15, Color.SandyBrown);
 
-            morze = new SquarePrimitive(GraphicsDevice, 200, Color.CornflowerBlue);
+            morze = new SquarePrimitive(GraphicsDevice, 200, Color.DarkBlue);
         }
 
         private void PrzygotujKamere()
         {
             Matrix proj = Matrix.CreatePerspectiveFieldOfView(
                                            MathHelper.ToRadians(50f), graphics.
-                                           GraphicsDevice.Viewport.AspectRatio, 1f, 5000f);
+                                           GraphicsDevice.Viewport.AspectRatio, 1f, 50f);
 
             kamera = new Camera3D(new Vector3(5f, 5f, 25f), Vector3.Forward, Vector3.Up, proj);
         }
@@ -102,58 +105,53 @@ namespace Tropikalna_wyspa
             }
         }
         
-        protected override void Draw(GameTime gameTime)
+        private void RysujBasicEffectami()
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-            
-            phong.diffuseColor = Color.White;
-            phong.viewPosition = kamera.Position;
-            phong.diffuseLightDirection = swiatloKierunkowe;
-            phong.diffuseLightColor = Color.White;
-            phong.materialEmissive = new Vector3(0f, 0f, 0f);
-            phong.materialAmbient = new Vector3(.1f, .1f, .1f);
-            phong.materialDiffuse = Color.LightYellow.ToVector3();
-            phong.materialSpecular = Color.LightYellow.ToVector3();
-            phong.materialPower = 50f;
-            phong.specularIntensity = 1f;
-            phong.pointLightFalloff = 5f;
-            phong.pointLightRange = 150f;
-            phong.pointLightPos = swiatloPunktowe;
-            phong.pointLightColor = swiatloPunktoweKolor.ToVector4();
-
-            phongStat.diffuseColor = Color.White;
-            phongStat.viewPosition = kamera.Position;
-            phongStat.diffuseLightDirection = swiatloKierunkowe;
-            phongStat.diffuseLightColor = Color.White;
-            phongStat.materialEmissive = new Vector3(0f, 0f, 0f);
-            phongStat.materialAmbient = new Vector3(.1f, .1f, .1f);
-            phongStat.materialDiffuse = Color.LightYellow.ToVector3();
-            phongStat.materialSpecular = Color.LightYellow.ToVector3();
-            phongStat.materialPower = 50f;
-            phongStat.specularIntensity = 1f;
-            phongStat.pointLightFalloff = 5f;
-            phongStat.pointLightRange = 150f;
-            phongStat.pointLightPos = swiatloPunktowe;
-            phongStat.pointLightColor = swiatloPunktoweKolor.ToVector4();
-
+            krysztal.model.Meshes[0].Effects[0].Parameters["EmissiveColor"].SetValue(swiatloPunktoweKolor.ToVector3());
             foreach (var obiekt in obiekty)
             {
-                for (int i = 0; i < obiekt.model.Meshes.Count; i++)
+                foreach (var mesh in obiekt.model.Meshes)
                 {
-                    ModelMesh mesh = obiekt.model.Meshes[i];
-                    foreach (var part in mesh.MeshParts)
+                    foreach (BasicEffect efekt in mesh.Effects)
                     {
-                        phongStat.diffuseColor = Color.Red;
-                        phongStat.viewMatrix = kamera.ViewMatrix;
-                        phongStat.projectionMatrix = kamera.ProjectionMatrix;
-                        phongStat.worldMatrix = obiekt.worldMatrix;
-                        phongStat.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(obiekt.worldMatrix));
-
-                        part.Effect = phongStat.efekt;
+                        efekt.World = obiekt.worldMatrix;
+                        efekt.View = kamera.ViewMatrix;
+                        efekt.Projection = kamera.ProjectionMatrix;
+                        efekt.LightingEnabled = true;
+                        //efekt.AmbientLightColor = new Color(30,30,30,255).ToVector3();
+                        efekt.DirectionalLight0.Enabled = true;
+                        efekt.DirectionalLight1.Enabled = true;
+                        efekt.DirectionalLight0.Direction = swiatloKierunkowe;
+                        efekt.DirectionalLight0.DiffuseColor = Color.White.ToVector3() / 10;
+                        efekt.DirectionalLight1.Direction = -swiatloPunktowe + obiekt.position;
+                        efekt.DirectionalLight1.DiffuseColor = swiatloPunktoweKolor.ToVector3() / 3;
                         mesh.Draw();
                     }
                 }
             }
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.DarkBlue);
+
+            phong.diffuseColor = Color.White;
+            phong.viewPosition = kamera.Position;
+            phong.diffuseLightDirection = swiatloKierunkowe;
+            phong.diffuseLightColor = Color.DimGray;
+            phong.materialEmissive = new Vector3(0f, 0f, 0f);
+            phong.materialAmbient = new Vector3(.05f, .05f, .1f);
+            phong.materialDiffuse = Color.White.ToVector3();
+            phong.materialSpecular = Color.White.ToVector3();
+            phong.materialPower = 50f;
+            phong.specularIntensity = 1f;
+            phong.pointLightFalloff = 7f;
+            phong.pointLightRange = 70f;
+            phong.pointLightPos = swiatloPunktowe;
+            phong.pointLightColor = swiatloPunktoweKolor.ToVector4() / 1.5f;
+
+            RysujMoimShaderem();
+            //RysujBasicEffectami();
 
             phong.viewMatrix = kamera.ViewMatrix;
             phong.projectionMatrix = kamera.ProjectionMatrix;
@@ -165,6 +163,35 @@ namespace Tropikalna_wyspa
             phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(0f, 0f, 0f), Vector3.Forward, Vector3.Up)));
             morze.Draw(phong.efekt);
             base.Draw(gameTime);
+        }
+
+        private void RysujMoimShaderem()
+        {
+            foreach (var obiekt in obiekty)
+            {
+                obiekt.shader.viewMatrix = kamera.ViewMatrix;
+                obiekt.shader.projectionMatrix = kamera.ProjectionMatrix;
+                obiekt.shader.worldMatrix = obiekt.worldMatrix;
+                obiekt.shader.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(obiekt.worldMatrix));
+
+                obiekt.shader.viewPosition = kamera.Position;
+                obiekt.shader.diffuseLightDirection = swiatloKierunkowe;
+                obiekt.shader.diffuseLightColor = Color.White;
+                obiekt.shader.pointLightFalloff = 5f;
+                obiekt.shader.pointLightRange = 150f;
+                obiekt.shader.pointLightPos = swiatloPunktowe;
+                obiekt.shader.pointLightColor = swiatloPunktoweKolor.ToVector4();
+                obiekt.Draw();
+                for (int i = 0; i < obiekt.model.Meshes.Count; i++)
+                {
+                    ModelMesh mesh = obiekt.model.Meshes[i];
+                    foreach (var part in mesh.MeshParts)
+                    {
+                        part.Effect = obiekt.shader.efekt;
+                        mesh.Draw();
+                    }
+                }
+            }
         }
 
         private void SprawdzSterowanie(GameTime gameTime)
