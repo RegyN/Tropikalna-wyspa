@@ -42,7 +42,7 @@ namespace Tropikalna_wyspa
             
             base.Initialize();
 
-            swiatloKierunkowe = new Vector3(1f, -1f, -1f);
+            swiatloKierunkowe = new Vector3(1f, -1.5f, -12f);
             swiatloPunktowe = new Vector3(5f, 1f, 9f);
             swiatloPunktoweKolor = Color.Red;
             czasOdZmianySwiatla = 0.0f;
@@ -65,7 +65,7 @@ namespace Tropikalna_wyspa
             obiekty = new List<Object3D>
             {
                 new Skrzynka(Content, new Vector3(8.5f,0.6f,12f), new Vector3(0f,1f,0.55f), new Vector3(-1f,0.1f,0.07f)),
-                new Krysztal(Content, new Vector3(5f, 0.0f, 9f), new Vector3(0.3f,1f,0f), new Vector3(-1f,0.1f,0.07f)),
+                new Krysztal(Content, new Vector3(5f, 0.0f, 9f), new Vector3(0.3f,1f,0f), Vector3.Left),
                 new Palma(Content, new Vector3(7.5f, 0.6f, 7.5f), new Vector3(-0.1f,1.0f,-0.1f), Vector3.Forward),
                 new Palma(Content, new Vector3(9.5f,-0.5f,9.6f), new Vector3(0.5f,1.0f,0.1f), Vector3.Backward)
             };
@@ -176,7 +176,7 @@ namespace Tropikalna_wyspa
 
                 obiekt.shader.viewPosition = kamera.Position;
                 obiekt.shader.diffuseLightDirection = swiatloKierunkowe;
-                obiekt.shader.diffuseLightColor = Color.White;
+                obiekt.shader.diffuseLightColor = Color.Gray;
                 obiekt.shader.pointLightFalloff = 5f;
                 obiekt.shader.pointLightRange = 150f;
                 obiekt.shader.pointLightPos = swiatloPunktowe;

@@ -16,12 +16,10 @@ namespace Tropikalna_wyspa
             shader = new Shader(cm.Load<Effect>("PhongStaticColor"));
             shader.worldMatrix = worldMatrix;
             shader.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(worldMatrix));
-            shader.diffuseColor = Color.White;
-            shader.diffuseLightColor = Color.White;
             shader.materialEmissive = new Vector3(0f, 0f, 0f);
             shader.materialAmbient = new Vector3(.1f, .1f, .1f);
-            shader.materialDiffuse = Color.White.ToVector3();
-            shader.materialSpecular = Color.White.ToVector3();
+            shader.materialDiffuse = Color.SaddleBrown.ToVector3();
+            shader.materialSpecular = Color.SaddleBrown.ToVector3();
             shader.materialPower = 50f;
             shader.specularIntensity = 1f;
             shader.diffuseColor = Color.SaddleBrown;
