@@ -43,7 +43,7 @@ namespace Tropikalna_wyspa
             base.Initialize();
 
             swiatloKierunkowe = new Vector3(1f, -1.5f, -12f);
-            swiatloPunktowe = new Vector3(5f, 1f, 9f);
+            swiatloPunktowe = new Vector3(5f, 2.5f, 9f);
             swiatloPunktoweKolor = Color.Red;
             czasOdZmianySwiatla = 0.0f;
 
@@ -72,9 +72,9 @@ namespace Tropikalna_wyspa
 
             krysztal = obiekty[1];
 
-            wyspa = GeneratorWyspy.ZrobWyspe(GraphicsDevice, 15, Color.SandyBrown);
+            wyspa = GeneratorWyspy.ZrobWyspe(GraphicsDevice, 15, Color.LightYellow);
 
-            morze = new SquarePrimitive(GraphicsDevice, 200, Color.DarkBlue);
+            morze = new SquarePrimitive(GraphicsDevice, 200, Color.CornflowerBlue);
         }
 
         private void PrzygotujKamere()
@@ -145,8 +145,8 @@ namespace Tropikalna_wyspa
             phong.materialSpecular = Color.White.ToVector3();
             phong.materialPower = 50f;
             phong.specularIntensity = 1f;
-            phong.pointLightFalloff = 7f;
-            phong.pointLightRange = 70f;
+            phong.pointLightFalloff = 1f;
+            phong.pointLightRange = 300f;
             phong.pointLightPos = swiatloPunktowe;
             phong.pointLightColor = swiatloPunktoweKolor.ToVector4() / 1.5f;
 

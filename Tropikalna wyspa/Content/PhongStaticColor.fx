@@ -36,6 +36,7 @@ struct VS_OUTPUT
 	float4 position : TEXCOORD0;		// Pixel position in clip space	
 	float3 normal	: TEXCOORD1;    // Pixel normal vector
 	float3 view		: TEXCOORD2;      // Pixel view vector
+	float4 worldPos : TEXCOORD3;
 	float4 color	: COLOR0;
 };
 #define	PS_INPUT VS_OUTPUT            // What comes out of VS goes into PS!
@@ -56,6 +57,8 @@ VS_OUTPUT VS(VS_INPUT IN)
 	// Calculate the view vector
 	float3 worldPos = mul(IN.position, WorldMatrix).xyz;
 	OUT.view = ViewPosition - worldPos;
+
+	OUT.worldPos = worldPosition;
 
 	OUT.color = surfaceColor;
 
@@ -115,9 +118,9 @@ float4 PS(PS_INPUT IN) : COLOR{
 
 	float4 kolorKier = WyznaczKierunkowe(IN.color, IN.normal, IN.view);
 
-	float4 kolorPoint = WyznaczPunktowe(IN.color, IN.normal, IN.view, IN.position);
+	float4 kolorPoint = WyznaczPunktowe(IN.color, IN.normal, IN.view, IN.worldPos);
 
-	float4 kolor = kolorKier;
+	float4 kolor = kolorKier + kolorPoint;
 	kolor.a = 1.0f;
 	return kolor;
 }
