@@ -18,16 +18,15 @@ namespace Tropikalna_wyspa
         GeometricPrimitive wyspa;
         GeometricPrimitive morze;
         Object3D krysztal;
+        float czasOdZmianySwiatla;
 
         Vector3 swiatloKierunkowe;
         Vector3 swiatloPunktowe;
-        float czasOdZmianySwiatla;
         Color swiatloPunktoweKolor;
 
         Camera3D kamera;
 
         Shader phong;
-        Shader phongStat;
 
         public DemoWyspa()
         {
@@ -41,7 +40,7 @@ namespace Tropikalna_wyspa
             PrzygotujOkno();
             
             base.Initialize();
-
+            // TODO: Klasa ze światłami
             swiatloKierunkowe = new Vector3(1f, -1.5f, -12f);
             swiatloPunktowe = new Vector3(5f, 2.5f, 9f);
             swiatloPunktoweKolor = Color.Red;
@@ -64,14 +63,16 @@ namespace Tropikalna_wyspa
         {
             obiekty = new List<Object3D>
             {
+                new Samolot(Content, new Vector3(7.5f, 5.0f, 7.5f), new Vector3(-0.1f, 1.0f, -0.1f), Vector3.Forward, 1.0f),
                 new Skrzynka(Content, new Vector3(8.5f,0.6f,12f), new Vector3(0f,1f,0.55f), new Vector3(-1f,0.1f,0.07f)),
                 new Krysztal(Content, new Vector3(5f, 0.0f, 9f), new Vector3(0.3f,1f,0f), Vector3.Left),
                 new Palma(Content, new Vector3(7.5f, 0.6f, 7.5f), new Vector3(-0.1f,1.0f,-0.1f), Vector3.Forward),
                 new Palma(Content, new Vector3(9.5f,-0.5f,9.6f), new Vector3(0.5f,1.0f,0.1f), Vector3.Backward)
             };
 
-            krysztal = obiekty[1];
+            krysztal = obiekty[2];
 
+            // TODO: Jakiś rozsądniejszy sposób przechowywania prymitywów? Połączyć z obiektami przez dziedziczenie? 
             wyspa = GeneratorWyspy.ZrobWyspe(GraphicsDevice, 15, Color.LightYellow);
 
             morze = new SquarePrimitive(GraphicsDevice, 200, Color.CornflowerBlue);
@@ -88,8 +89,7 @@ namespace Tropikalna_wyspa
 
         protected override void LoadContent()
         {
-            phong = new Shader(Content.Load<Effect>("NewPhong"));
-            phongStat = new Shader(Content.Load<Effect>("PhongStaticColor"));
+            phong = new Shader(Content.Load<Effect>("NewPhong"));       // TODO: Zmienić na NoTexturePhong
         }
 
         protected override void UnloadContent() => Content.Unload();
@@ -102,32 +102,6 @@ namespace Tropikalna_wyspa
                 czasOdZmianySwiatla += gameTime.ElapsedGameTime.Milliseconds / 1000f;
                 AktualizujKolorSwiatla();
                 base.Update(gameTime);
-            }
-        }
-        
-        private void RysujBasicEffectami()
-        {
-            krysztal.model.Meshes[0].Effects[0].Parameters["EmissiveColor"].SetValue(swiatloPunktoweKolor.ToVector3());
-            foreach (var obiekt in obiekty)
-            {
-                foreach (var mesh in obiekt.model.Meshes)
-                {
-                    foreach (BasicEffect efekt in mesh.Effects)
-                    {
-                        efekt.World = obiekt.worldMatrix;
-                        efekt.View = kamera.ViewMatrix;
-                        efekt.Projection = kamera.ProjectionMatrix;
-                        efekt.LightingEnabled = true;
-                        //efekt.AmbientLightColor = new Color(30,30,30,255).ToVector3();
-                        efekt.DirectionalLight0.Enabled = true;
-                        efekt.DirectionalLight1.Enabled = true;
-                        efekt.DirectionalLight0.Direction = swiatloKierunkowe;
-                        efekt.DirectionalLight0.DiffuseColor = Color.White.ToVector3() / 10;
-                        efekt.DirectionalLight1.Direction = -swiatloPunktowe + obiekt.position;
-                        efekt.DirectionalLight1.DiffuseColor = swiatloPunktoweKolor.ToVector3() / 3;
-                        mesh.Draw();
-                    }
-                }
             }
         }
 
@@ -151,7 +125,6 @@ namespace Tropikalna_wyspa
             phong.pointLightColor = swiatloPunktoweKolor.ToVector4() / 1.5f;
 
             RysujMoimShaderem();
-            //RysujBasicEffectami();
 
             phong.viewMatrix = kamera.ViewMatrix;
             phong.projectionMatrix = kamera.ProjectionMatrix;
@@ -167,7 +140,7 @@ namespace Tropikalna_wyspa
 
         private void RysujMoimShaderem()
         {
-            foreach (var obiekt in obiekty)
+            foreach (var obiekt in obiekty)     // TODO: możliwie dużą część tych rzeczy przenieść do metod w rysowanych obiektach
             {
                 obiekt.shader.viewMatrix = kamera.ViewMatrix;
                 obiekt.shader.projectionMatrix = kamera.ProjectionMatrix;
@@ -182,15 +155,6 @@ namespace Tropikalna_wyspa
                 obiekt.shader.pointLightPos = swiatloPunktowe;
                 obiekt.shader.pointLightColor = swiatloPunktoweKolor.ToVector4();
                 obiekt.Draw();
-                for (int i = 0; i < obiekt.model.Meshes.Count; i++)
-                {
-                    ModelMesh mesh = obiekt.model.Meshes[i];
-                    foreach (var part in mesh.MeshParts)
-                    {
-                        part.Effect = obiekt.shader.efekt;
-                        mesh.Draw();
-                    }
-                }
             }
         }
 

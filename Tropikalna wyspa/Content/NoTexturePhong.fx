@@ -19,7 +19,7 @@ float3 materialEmissive : EMISSIVE;
 float3 materialAmbient	: AMBIENT;
 float4 materialDiffuse	: DIFFUSE;
 float3 materialSpecular : SPECULAR;
-float specularIntensity;
+float  specularIntensity;
 float  materialPower : SPECULARPOWER;
 
 // Vertex Shader Input Structure
@@ -125,7 +125,7 @@ float4 PS(PS_INPUT IN) : COLOR{
 	return kolor;
 }
 
-technique TSM3
+technique NoTex
 {
 	pass P
 	{

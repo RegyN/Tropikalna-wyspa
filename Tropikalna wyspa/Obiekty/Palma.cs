@@ -13,7 +13,8 @@ namespace Tropikalna_wyspa
         public Palma(Microsoft.Xna.Framework.Content.ContentManager cm, Vector3 poz, Vector3 up, Vector3 forward, float scale = 1f)
             :base(cm.Load<Model>("Palma"), poz, up, forward, scale)
         {
-            shader = new Shader(cm.Load<Effect>("PhongStaticColor"));
+            shader = new Shader(cm.Load<Effect>("NoTexturePhong"));
+            shader.efekt.CurrentTechnique = shader.efekt.Techniques["NoTex"];
             shader.worldMatrix = worldMatrix;
             shader.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(worldMatrix));
             shader.diffuseColor = Color.White;

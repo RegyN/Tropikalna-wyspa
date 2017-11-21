@@ -14,20 +14,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 #endregion
 
+// FIX: Zacząć używać jakichś innych vertexów, ale bez pośpiechu
 namespace Primitives3D
 {
-    /// <summary>
-    /// Base class for simple geometric primitive models. This provides a vertex
-    /// buffer, an index buffer, plus methods for drawing the model. Classes for
-    /// specific types of primitive (CubePrimitive, SpherePrimitive, etc.) are
-    /// derived from this common base, and use the AddVertex and AddIndex methods
-    /// to specify their geometry.
-    /// </summary>
     public abstract class GeometricPrimitive : IDisposable
     {
         #region Fields
-
-
         // During the process of constructing a primitive model, vertex
         // and index data is stored on the CPU in these managed lists.
         List<VertexPositionNormalColor> vertices = new List<VertexPositionNormalColor>();

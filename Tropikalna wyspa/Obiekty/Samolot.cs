@@ -1,15 +1,17 @@
-﻿using Microsoft.Xna.Framework;
+﻿
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Tropikalna_wyspa
 {
-    class Skrzynka : Object3D
+    class Samolot : Object3D
     {
-        public Skrzynka(Microsoft.Xna.Framework.Content.ContentManager cm, Vector3 poz, Vector3 up, Vector3 forward, float scale = 0.025f)
-            :base(cm.Load<Model>("Skrzynka"), poz, up, forward, scale)
+        public Samolot(Microsoft.Xna.Framework.Content.ContentManager cm, Vector3 poz, Vector3 up, Vector3 forward, float scale = 0.025f)
+            : base(cm.Load<Model>("SeaPlane"), poz, up, forward, scale)
         {
-            shader = new Shader(cm.Load<Effect>("NoTexturePhong"));
-            shader.efekt.CurrentTechnique = shader.efekt.Techniques["NoTex"];
+            shader = new Shader(cm.Load<Effect>("TexturePhong").Clone());
+            shader.efekt.CurrentTechnique = shader.efekt.Techniques["Tex"];
+            shader.efekt.Parameters["textureImage"].SetValue(cm.Load<Texture>("SeaPlaneTex"));
             shader.worldMatrix = worldMatrix;
             shader.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(worldMatrix));
             shader.materialEmissive = new Vector3(0f, 0f, 0f);

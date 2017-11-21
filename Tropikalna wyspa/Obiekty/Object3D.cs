@@ -45,6 +45,7 @@ namespace Tropikalna_wyspa
                 ModelMesh mesh = model.Meshes[i];
                 foreach (var part in mesh.MeshParts)
                 {
+                    //shader.efekt.CurrentTechnique = shader.efekt.Techniques["Tex"];
                     part.Effect = shader.efekt;
                     mesh.Draw();
                 }

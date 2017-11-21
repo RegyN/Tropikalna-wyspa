@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Tropikalna_wyspa
 {
+    // TODO: Wyczyścić kod shaderów, tak ogólnie, potem sprzątnąć też trochę w tej klasie bo jest syf.
     class Shader
     {
         public Effect efekt;
