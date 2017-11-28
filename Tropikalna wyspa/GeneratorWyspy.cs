@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Primitives3D;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +10,9 @@ namespace Tropikalna_wyspa
 {
     class GeneratorWyspy
     {
-        public static HeightMapTerrain ZrobWyspe(GraphicsDevice gd, int size, Color color)
+        public static HeightMapTerrain ZrobWyspe(GraphicsDevice gd, int size)
         {
-            return new HeightMapTerrain(gd, 1, GenerujMapeWysokosci(size), GenerujMapeNormali(size), color);
+            return new HeightMapTerrain(gd, 1, GenerujMapeWysokosci(size), GenerujMapeNormali(size));
         }
 
         private static float[][] GenerujMapeWysokosci(int size)

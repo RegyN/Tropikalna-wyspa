@@ -14,15 +14,14 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 #endregion
 
-// FIX: Zacząć używać jakichś innych vertexów, ale bez pośpiechu
-namespace Primitives3D
+namespace Tropikalna_wyspa
 {
     public abstract class GeometricPrimitive : IDisposable
     {
         #region Fields
         // During the process of constructing a primitive model, vertex
         // and index data is stored on the CPU in these managed lists.
-        List<VertexPositionNormalColor> vertices = new List<VertexPositionNormalColor>();
+        List<VertexPositionNormalTexture> vertices = new List<VertexPositionNormalTexture>();
         List<ushort> indices = new List<ushort>();
 
 
@@ -43,9 +42,9 @@ namespace Primitives3D
         /// Adds a new vertex to the primitive model. This should only be called
         /// during the initialization process, before InitializePrimitive.
         /// </summary>
-        protected void AddVertex(Vector3 position, Vector3 normal, Color col)
+        protected void AddVertex(Vector3 position, Vector3 normal, Vector2 texPos)
         {
-            vertices.Add(new VertexPositionNormalColor(position, normal, col));
+            vertices.Add(new VertexPositionNormalTexture(position, normal, texPos));
         }
 
 
@@ -82,7 +81,7 @@ namespace Primitives3D
 
             // Create a vertex buffer, and copy our vertex data into it.
             vertexBuffer = new VertexBuffer(graphicsDevice,
-                                            typeof(VertexPositionNormalColor),
+                                            typeof(VertexPositionNormalTexture),
                                             vertices.Count, BufferUsage.None);
 
             vertexBuffer.SetData(vertices.ToArray());

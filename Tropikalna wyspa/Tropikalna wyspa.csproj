@@ -41,6 +41,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="GeometricPrimitives\GeometricPrimitive.cs" />
+    <Compile Include="GeometricPrimitives\HeightMapTerrain.cs" />
+    <Compile Include="GeometricPrimitives\SquarePrimitive.cs" />
     <Compile Include="Obiekty\Camera3D.cs" />
     <Compile Include="DemoWyspa.cs" />
     <Compile Include="GeneratorWyspy.cs" />
@@ -62,6 +65,7 @@
   <ItemGroup>
     <Content Include="Content\NewPhong.fx" />
     <Content Include="Content\NoTexturePhong.fx" />
+    <Content Include="Content\OceanShader.fx" />
     <Content Include="Content\TexturePhong.fx" />
     <Content Include="Icon.ico" />
   </ItemGroup>
@@ -69,12 +73,7 @@
     <MonoGameContentReference Include="Content\Content.mgcb" />
     <None Include="app.manifest" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Testy nowych klas\Testy nowych klas.csproj">
-      <Project>{8ed9a4c8-ca5e-4b74-bd9c-fb43c04dbdf3}</Project>
-      <Name>Testy nowych klas</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

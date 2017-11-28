@@ -1,12 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Primitives3D
+namespace Tropikalna_wyspa
 {
     public class HeightMapTerrain : GeometricPrimitive
     {
@@ -19,11 +14,10 @@ namespace Primitives3D
                       new Vector3[][]{
                           new Vector3[]{ new Vector3(0, 1, 0), new Vector3(0, 1, 0) },
                           new Vector3[]{ new Vector3(0, 1, 0), new Vector3(0, 1, 0) }
-                      },
-                      Color.SandyBrown)
+                      })
         { }
 
-        public HeightMapTerrain(GraphicsDevice graphicsDevice, float size, float[][] heightMap, Vector3[][] normalMap, Color color)
+        public HeightMapTerrain(GraphicsDevice graphicsDevice, float size, float[][] heightMap, Vector3[][] normalMap)
         {
             for(int i = 0; i<heightMap.Length-1; i++)
             {
@@ -50,12 +44,12 @@ namespace Primitives3D
 
                     Vector3 upperLeftPos = new Vector3(i, heightMap[i][j], j);
 
-                    AddVertex(upperLeftPos, normalMap[i][j], color);
-                    AddVertex(upperLeftPos + sideLeft, normalMap[i+1][j], color);
-                    AddVertex(upperLeftPos + sideLeft + sideDown, normalMap[i+1][j+1], color);
-                    AddVertex(upperLeftPos, normalMap[i][j], color);
-                    AddVertex(upperLeftPos + sideUp + sideRight, normalMap[i+1][j+1], color);
-                    AddVertex(upperLeftPos + sideUp, normalMap[i][j+1], color);
+                    AddVertex(upperLeftPos, normalMap[i][j], new Vector2(0.0f, 0.0f));
+                    AddVertex(upperLeftPos + sideLeft, normalMap[i+1][j], new Vector2(0.0f, 1.0f));
+                    AddVertex(upperLeftPos + sideLeft + sideDown, normalMap[i+1][j+1], new Vector2(1.0f, 1.0f));
+                    AddVertex(upperLeftPos, normalMap[i][j], new Vector2(0.0f, 0.0f));
+                    AddVertex(upperLeftPos + sideUp + sideRight, normalMap[i+1][j+1], new Vector2(1.0f, 0.0f));
+                    AddVertex(upperLeftPos + sideUp, normalMap[i][j+1], new Vector2(1.0f, 1.0f));
                 }
                 InitializePrimitive(graphicsDevice);
             }

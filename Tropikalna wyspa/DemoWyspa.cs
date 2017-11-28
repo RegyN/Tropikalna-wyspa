@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework.Input;
 using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Primitives3D;
 
 namespace Tropikalna_wyspa
 {
@@ -73,23 +72,23 @@ namespace Tropikalna_wyspa
             krysztal = obiekty[2];
 
             // TODO: Jakiś rozsądniejszy sposób przechowywania prymitywów? Połączyć z obiektami przez dziedziczenie? 
-            wyspa = GeneratorWyspy.ZrobWyspe(GraphicsDevice, 15, Color.LightYellow);
+            wyspa = GeneratorWyspy.ZrobWyspe(GraphicsDevice, 15);
 
-            morze = new SquarePrimitive(GraphicsDevice, 200, Color.CornflowerBlue);
+            morze = new SquarePrimitive(GraphicsDevice, 200);
         }
 
         private void PrzygotujKamere()
         {
             Matrix proj = Matrix.CreatePerspectiveFieldOfView(
                                            MathHelper.ToRadians(50f), graphics.
-                                           GraphicsDevice.Viewport.AspectRatio, 1f, 50f);
+                                           GraphicsDevice.Viewport.AspectRatio, 1f, 500f);
 
             kamera = new Camera3D(new Vector3(5f, 5f, 25f), Vector3.Forward, Vector3.Up, proj);
         }
 
         protected override void LoadContent()
         {
-            phong = new Shader(Content.Load<Effect>("NewPhong"));       // TODO: Zmienić na NoTexturePhong
+            phong = new Shader(Content.Load<Effect>("NoTexturePhong"));
         }
 
         protected override void UnloadContent() => Content.Unload();
@@ -109,7 +108,7 @@ namespace Tropikalna_wyspa
         {
             GraphicsDevice.Clear(Color.DarkBlue);
 
-            phong.diffuseColor = Color.White;
+            phong.diffuseColor = Color.Gray;
             phong.viewPosition = kamera.Position;
             phong.diffuseLightDirection = swiatloKierunkowe;
             phong.diffuseLightColor = Color.DimGray;
@@ -126,12 +125,14 @@ namespace Tropikalna_wyspa
 
             RysujMoimShaderem();
 
+            phong.diffuseColor = Color.SandyBrown;
             phong.viewMatrix = kamera.ViewMatrix;
             phong.projectionMatrix = kamera.ProjectionMatrix;
             phong.worldMatrix = Matrix.CreateWorld(new Vector3(0f, 1.5f, 0f), Vector3.Forward, Vector3.Up);
             phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(0f, 1.5f, 0f), Vector3.Forward, Vector3.Up)));
             wyspa.Draw(phong.efekt);
 
+            phong.diffuseColor = Color.DarkBlue;
             phong.worldMatrix = Matrix.CreateWorld(new Vector3(0f, 0f, 0f), Vector3.Forward, Vector3.Up);
             phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(0f, 0f, 0f), Vector3.Forward, Vector3.Up)));
             morze.Draw(phong.efekt);
@@ -221,6 +222,10 @@ namespace Tropikalna_wyspa
             {
                 this.Exit();
             }
+            if (kState.IsKeyDown(Keys.Space) && !prevKState.IsKeyDown(Keys.Space))
+            {
+                this.PrzelaczMSAA();
+            }
             prevKState = kState;
             prevMState = mState;
         }
@@ -246,6 +251,26 @@ namespace Tropikalna_wyspa
                 czasOdZmianySwiatla = 0.0f;
                 swiatloPunktoweKolor = Color.Red;
             }
+        }
+
+        private void PrzelaczMSAA()
+        {
+            this.ZmienStatusMSAA(!graphics.PreferMultiSampling);
+        }
+
+        private void ZmienStatusMSAA(bool enable)
+        {
+            graphics.PreferMultiSampling = enable;
+
+            var rasterizerState = new RasterizerState
+            {
+                MultiSampleAntiAlias = enable,
+            };
+
+            GraphicsDevice.RasterizerState = rasterizerState;
+            GraphicsDevice.PresentationParameters.MultiSampleCount = enable ? 4 : 0;
+
+            graphics.ApplyChanges();
         }
     }
     public static class Program

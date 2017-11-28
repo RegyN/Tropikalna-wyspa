@@ -1,22 +1,17 @@
 ﻿#region Usingi
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 #endregion
 
-namespace Primitives3D
+namespace Tropikalna_wyspa
 {
     public class SquarePrimitive : GeometricPrimitive
     {
         public SquarePrimitive(GraphicsDevice graphicsDevice)
-            :this(graphicsDevice, 1, Color.CornflowerBlue)
+            :this(graphicsDevice, 1)
         {}
 
-        public SquarePrimitive(GraphicsDevice graphicsDevice, float size, Color color)
+        public SquarePrimitive(GraphicsDevice graphicsDevice, float size)
         {
             // Plane ma dwie ścianki, więc każdej potrzebny jest wektor normalny.
             Vector3[] normals =
@@ -41,10 +36,10 @@ namespace Primitives3D
                 AddIndex(CurrentVertex + 3);
 
                 // Cztery narożniki na ściankę
-                AddVertex((Vector3.Zero - side1 - side2) * size / 2, normal, color);
-                AddVertex((Vector3.Zero - side1 + side2) * size / 2, normal, color);
-                AddVertex((Vector3.Zero + side1 + side2) * size / 2, normal, color);
-                AddVertex((Vector3.Zero + side1 - side2) * size / 2, normal, color);
+                AddVertex((Vector3.Zero - side1 - side2) * size / 2, normal, new Vector2(0.0f, 0.0f));
+                AddVertex((Vector3.Zero - side1 + side2) * size / 2, normal, new Vector2(0.0f, 1.0f));
+                AddVertex((Vector3.Zero + side1 + side2) * size / 2, normal, new Vector2(1.0f, 1.0f));
+                AddVertex((Vector3.Zero + side1 - side2) * size / 2, normal, new Vector2(1.0f, 0.0f));
             }
             InitializePrimitive(graphicsDevice);
         }

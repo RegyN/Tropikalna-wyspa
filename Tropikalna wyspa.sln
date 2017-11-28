@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tropikalna wyspa", "Tropikalna wyspa\Tropikalna wyspa.csproj", "{35550675-3582-4D55-9046-C4E14788682E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testy nowych klas", "Testy nowych klas\Testy nowych klas.csproj", "{8ED9A4C8-CA5E-4B74-BD9C-FB43C04DBDF3}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -17,10 +15,6 @@ Global
 		{35550675-3582-4D55-9046-C4E14788682E}.Debug|x86.Build.0 = Debug|x86
 		{35550675-3582-4D55-9046-C4E14788682E}.Release|x86.ActiveCfg = Release|x86
 		{35550675-3582-4D55-9046-C4E14788682E}.Release|x86.Build.0 = Release|x86
-		{8ED9A4C8-CA5E-4B74-BD9C-FB43C04DBDF3}.Debug|x86.ActiveCfg = Debug|x86
-		{8ED9A4C8-CA5E-4B74-BD9C-FB43C04DBDF3}.Debug|x86.Build.0 = Debug|x86
-		{8ED9A4C8-CA5E-4B74-BD9C-FB43C04DBDF3}.Release|x86.ActiveCfg = Release|x86
-		{8ED9A4C8-CA5E-4B74-BD9C-FB43C04DBDF3}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
