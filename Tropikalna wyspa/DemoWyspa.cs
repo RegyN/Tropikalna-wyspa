@@ -16,7 +16,9 @@ namespace Tropikalna_wyspa
         List<Object3D> obiekty;
         GeometricPrimitive wyspa;
         GeometricPrimitive morze;
+        GeometricPrimitive dno;
         Object3D krysztal;
+        Skybox skybox;
         float czasOdZmianySwiatla;
 
         Vector3 swiatloKierunkowe;
@@ -26,6 +28,7 @@ namespace Tropikalna_wyspa
         Camera3D kamera;
 
         Shader phong;
+        Shader ocean;
 
         public DemoWyspa()
         {
@@ -40,7 +43,7 @@ namespace Tropikalna_wyspa
             
             base.Initialize();
             // TODO: Klasa ze światłami
-            swiatloKierunkowe = new Vector3(1f, -1.5f, -12f);
+            swiatloKierunkowe = new Vector3(-12f, -1.5f, 4f);
             swiatloPunktowe = new Vector3(5f, 2.5f, 9f);
             swiatloPunktoweKolor = Color.Red;
             czasOdZmianySwiatla = 0.0f;
@@ -71,10 +74,13 @@ namespace Tropikalna_wyspa
 
             krysztal = obiekty[2];
 
+            skybox = new Skybox("Skybox", Content);
+
             // TODO: Jakiś rozsądniejszy sposób przechowywania prymitywów? Połączyć z obiektami przez dziedziczenie? 
             wyspa = GeneratorWyspy.ZrobWyspe(GraphicsDevice, 15);
 
             morze = new SquarePrimitive(GraphicsDevice, 200);
+            dno = new SquarePrimitive(GraphicsDevice, 200);
         }
 
         private void PrzygotujKamere()
@@ -86,9 +92,44 @@ namespace Tropikalna_wyspa
             kamera = new Camera3D(new Vector3(5f, 5f, 25f), Vector3.Forward, Vector3.Up, proj);
         }
 
+        private void PrzygotujShadery()
+        {
+            phong.diffuseColor = Color.Gray;
+            phong.viewPosition = kamera.Position;
+            phong.diffuseLightDirection = swiatloKierunkowe;
+            phong.diffuseLightColor = Color.DimGray;
+            phong.materialEmissive = new Vector3(0f, 0f, 0f);
+            phong.materialAmbient = new Vector3(.05f, .05f, .1f);
+            phong.materialDiffuse = Color.White.ToVector3();
+            phong.materialSpecular = Color.White.ToVector3();
+            phong.materialPower = 50f;
+            phong.specularIntensity = 1f;
+            phong.pointLightFalloff = 1f;
+            phong.pointLightRange = 300f;
+            phong.pointLightPos = swiatloPunktowe;
+            phong.pointLightColor = swiatloPunktoweKolor.ToVector4() / 1.5f;
+
+            ocean.diffuseColor = Color.Gray;
+            ocean.viewPosition = kamera.Position;
+            ocean.diffuseLightDirection = swiatloKierunkowe;
+            ocean.diffuseLightColor = Color.DimGray;
+            ocean.materialEmissive = new Vector3(0f, 0f, 0f);
+            ocean.materialAmbient = new Vector3(.05f, .05f, .1f);
+            ocean.materialDiffuse = Color.White.ToVector3();
+            ocean.materialSpecular = Color.White.ToVector3();
+            ocean.materialPower = 50f;
+            ocean.specularIntensity = 1f;
+            ocean.pointLightFalloff = 1f;
+            ocean.pointLightRange = 300f;
+            ocean.pointLightPos = swiatloPunktowe;
+            ocean.pointLightColor = swiatloPunktoweKolor.ToVector4() / 1.5f;
+        }
+
         protected override void LoadContent()
         {
             phong = new Shader(Content.Load<Effect>("NoTexturePhong"));
+            ocean = new Shader(Content.Load<Effect>("OceanShader"));
+            // skybox = new Shader(Content.Load<Effect>("SkyboxShader"));
         }
 
         protected override void UnloadContent() => Content.Unload();
@@ -107,22 +148,15 @@ namespace Tropikalna_wyspa
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.DarkBlue);
-
-            phong.diffuseColor = Color.Gray;
-            phong.viewPosition = kamera.Position;
-            phong.diffuseLightDirection = swiatloKierunkowe;
-            phong.diffuseLightColor = Color.DimGray;
-            phong.materialEmissive = new Vector3(0f, 0f, 0f);
-            phong.materialAmbient = new Vector3(.05f, .05f, .1f);
-            phong.materialDiffuse = Color.White.ToVector3();
-            phong.materialSpecular = Color.White.ToVector3();
-            phong.materialPower = 50f;
-            phong.specularIntensity = 1f;
-            phong.pointLightFalloff = 1f;
-            phong.pointLightRange = 300f;
-            phong.pointLightPos = swiatloPunktowe;
-            phong.pointLightColor = swiatloPunktoweKolor.ToVector4() / 1.5f;
-
+            
+            PrzygotujShadery();
+            RasterizerState nowy = new RasterizerState();
+            nowy.CullMode = CullMode.CullClockwiseFace;
+            graphics.GraphicsDevice.RasterizerState = nowy;
+            skybox.Draw(kamera.ViewMatrix, kamera.ProjectionMatrix, kamera.Position);
+            RasterizerState nowszy = new RasterizerState();
+            nowszy.CullMode = CullMode.CullCounterClockwiseFace;
+            graphics.GraphicsDevice.RasterizerState = nowszy;
             RysujMoimShaderem();
 
             phong.diffuseColor = Color.SandyBrown;
@@ -135,10 +169,21 @@ namespace Tropikalna_wyspa
             phong.diffuseColor = Color.DarkBlue;
             phong.worldMatrix = Matrix.CreateWorld(new Vector3(0f, 0f, 0f), Vector3.Forward, Vector3.Up);
             phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(0f, 0f, 0f), Vector3.Forward, Vector3.Up)));
+
+            //Texture[] array = new Texture[2];
+            //array[0] = Content.Load<Texture>("TexV");
+            //array[1] = Content.Load<Texture>("TexH");
+            //ocean.efekt.Parameters["tex"].SetValue(Content.Load<Texture>("TexH"));
             morze.Draw(phong.efekt);
+
+            phong.diffuseColor = Color.Brown;
+            phong.worldMatrix = Matrix.CreateWorld(new Vector3(0f, -2.5f, 0f), Vector3.Forward, Vector3.Up);
+            phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(0f, 0f, 0f), Vector3.Forward, Vector3.Up)));
+            dno.Draw(phong.efekt);
+
             base.Draw(gameTime);
         }
-
+        
         private void RysujMoimShaderem()
         {
             foreach (var obiekt in obiekty)     // TODO: możliwie dużą część tych rzeczy przenieść do metod w rysowanych obiektach

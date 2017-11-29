@@ -22,27 +22,41 @@ float3 materialSpecular : SPECULAR;
 float  specularIntensity;
 float  materialPower : SPECULARPOWER;
 
+Texture2D tex;
+Texture2D textured;
+Texture2D aaa;
+
 // Vertex Shader Input Structure
 struct VS_INPUT {
 	float4 position : POSITION;		// Vertex position in object space
 	float3 normal	: NORMAL;       // Vertex normal in object space
-									//float4 color	: COLOR0;
+	float2 TextureCoordinate : TEXCOORD0;
 };
 
 // Vertex Shader Output Structure
 struct VS_OUTPUT
 {
 	float4 position2 : POSITION;
-	float4 position : TEXCOORD0;		// Pixel position in clip space	
-	float3 normal	: TEXCOORD1;    // Pixel normal vector
-	float3 view		: TEXCOORD2;      // Pixel view vector
+	float4 position : TEXCOORD0;			// Pixel position in clip space	
+	float3 normal	: TEXCOORD1;			// Pixel normal vector
+	float3 view		: TEXCOORD2;			// Pixel view vector
 	float4 worldPos : TEXCOORD3;
+	float2 TextureCoordinate : TEXCOORD4;
 	float4 color	: COLOR0;
 };
 #define	PS_INPUT VS_OUTPUT            // What comes out of VS goes into PS!
 
+sampler2D TextureSampler = sampler_state {
+	Texture = (tex);
+	MagFilter = None;
+	MinFilter = None;
+	MipFilter = None;
+	AddressU = Clamp;
+	AddressV = Clamp;
+};
+
 // Vertex Shader Function
-VS_OUTPUT VS(VS_INPUT IN)
+VS_OUTPUT VS_Tex(VS_INPUT IN)
 {
 	VS_OUTPUT OUT;
 	// Basic transformation of untransformed vertex into clip-space
@@ -50,6 +64,8 @@ VS_OUTPUT VS(VS_INPUT IN)
 	float4 viewPosition = mul(worldPosition, ViewMatrix);
 	OUT.position = IN.position;
 	OUT.position2 = mul(viewPosition, ProjectionMatrix);
+
+	OUT.TextureCoordinate = IN.TextureCoordinate;
 
 	// Calculate the normal vector
 	OUT.normal = mul(IN.normal, WorldInvTransMat);
@@ -59,7 +75,6 @@ VS_OUTPUT VS(VS_INPUT IN)
 	OUT.view = ViewPosition - worldPos;
 
 	OUT.worldPos = worldPosition;
-
 	OUT.color = surfaceColor;
 
 	return OUT;
@@ -114,22 +129,24 @@ float4 WyznaczPunktowe2(float4 col, float3 norm, float3 vi, float4 pos)
 }
 
 // Pixel Shader Function
-float4 PS(PS_INPUT IN) : COLOR{
-
+float4 PS_Tex(PS_INPUT IN) : COLOR
+{
 	float4 kolorKier = WyznaczKierunkowe(IN.color, IN.normal, IN.view);
 
 	float4 kolorPoint = WyznaczPunktowe(IN.color, IN.normal, IN.view, IN.worldPos);
 
-	float4 kolor = kolorKier + kolorPoint;
-	kolor.a = 1.0f;
-	return kolor;
+	float4 kolor = kolorPoint + kolorKier;
+	float4 kolorTekstury = tex2D(TextureSampler, IN.TextureCoordinate);
+	//float4 kolorDrugiejTekstury = tex2D(TextureSampler, IN.TextureCoordinate);
+	kolor.a = 0.5f;
+	return saturate(kolorTekstury * kolor);
 }
 
-technique NoTex
+technique Tex
 {
 	pass P
 	{
-		VertexShader = compile vs_4_0_level_9_1 VS();
-		PixelShader = compile ps_4_0_level_9_1 PS();
+		VertexShader = compile vs_4_0_level_9_3 VS_Tex();
+		PixelShader = compile ps_4_0_level_9_3 PS_Tex();
 	}
 }

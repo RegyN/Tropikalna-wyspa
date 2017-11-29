@@ -95,7 +95,7 @@ namespace Tropikalna_wyspa
             left.Normalize();
 
             Forward = Vector3.Transform(Forward, Matrix.CreateFromAxisAngle(left, MathHelper.ToRadians(amount)));
-            Up = Vector3.Transform(Up, Matrix.CreateFromAxisAngle(left, MathHelper.ToRadians(amount)));             // Jakbym chciał zrobić inny obrót, to  = Vector3.Up;
+            Up = Vector3.Up;// Transform(Up, Matrix.CreateFromAxisAngle(left, MathHelper.ToRadians(amount)));             // Jakbym chciał zrobić inny obrót, to  = Vector3.Up;
         }
     }
 }

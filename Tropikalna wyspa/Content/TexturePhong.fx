@@ -53,6 +53,7 @@ sampler2D TextureSampler = sampler_state {
 	AddressV = Clamp;
 };
 
+
 // Vertex Shader Function
 VS_OUTPUT VS_Tex(VS_INPUT IN)
 {

@@ -121,7 +121,6 @@ float4 PS(PS_INPUT IN) : COLOR{
 	float4 kolorPoint = WyznaczPunktowe(IN.color, IN.normal, IN.view, IN.worldPos);
 
 	float4 kolor = kolorKier + kolorPoint;
-	kolor.a = 1.0f;
 	return kolor;
 }
 
