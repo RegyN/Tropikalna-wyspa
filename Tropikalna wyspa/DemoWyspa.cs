@@ -65,7 +65,7 @@ namespace Tropikalna_wyspa
         {
             obiekty = new List<Object3D>
             {
-                new Samolot(Content, new Vector3(7.5f, 5.0f, 7.5f), new Vector3(-0.1f, 1.0f, -0.1f), Vector3.Forward, 1.0f),
+                new Drogowskaz(Content, new Vector3(8.5f, 1.0f, 8.5f), new Vector3(-0.1f, 1.0f, -0.1f), Vector3.Forward, 0.001f),
                 new Skrzynka(Content, new Vector3(8.5f,0.6f,12f), new Vector3(0f,1f,0.55f), new Vector3(-1f,0.1f,0.07f)),
                 new Krysztal(Content, new Vector3(5f, 0.0f, 9f), new Vector3(0.3f,1f,0f), Vector3.Left),
                 new Palma(Content, new Vector3(7.5f, 0.6f, 7.5f), new Vector3(-0.1f,1.0f,-0.1f), Vector3.Forward),
@@ -87,7 +87,7 @@ namespace Tropikalna_wyspa
         {
             Matrix proj = Matrix.CreatePerspectiveFieldOfView(
                                            MathHelper.ToRadians(50f), graphics.
-                                           GraphicsDevice.Viewport.AspectRatio, 1f, 500f);
+                                           GraphicsDevice.Viewport.AspectRatio, 1f, 50000f);
 
             kamera = new Camera3D(new Vector3(5f, 5f, 25f), Vector3.Forward, Vector3.Up, proj);
         }
@@ -116,7 +116,6 @@ namespace Tropikalna_wyspa
             ocean.materialEmissive = new Vector3(0f, 0f, 0f);
             ocean.materialAmbient = new Vector3(.05f, .05f, .1f);
             ocean.materialDiffuse = Color.White.ToVector3();
-            ocean.materialSpecular = Color.White.ToVector3();
             ocean.materialPower = 50f;
             ocean.specularIntensity = 1f;
             ocean.pointLightFalloff = 1f;

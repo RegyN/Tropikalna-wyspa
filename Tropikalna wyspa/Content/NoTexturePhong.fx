@@ -22,6 +22,11 @@ float3 materialSpecular : SPECULAR;
 float  specularIntensity;
 float  materialPower : SPECULARPOWER;
 
+float3 fogColor = float3(0.1f, 0.15f, 0.2f);
+float  fogStart = 20.0f;
+float  fogEnd = 50.0f;
+float fogEnabled = 1.0f;
+
 // Vertex Shader Input Structure
 struct VS_INPUT {
 	float4 position : POSITION;		// Vertex position in object space
@@ -38,9 +43,14 @@ struct VS_OUTPUT
 	float3 view		: TEXCOORD2;      // Pixel view vector
 	float4 worldPos : TEXCOORD3;
 	float4 color	: COLOR0;
+	float fogFactor : FLOAT0;
 };
 #define	PS_INPUT VS_OUTPUT            // What comes out of VS goes into PS!
 
+float ComputeFogFactor(float d)
+{
+	return clamp((d - fogStart) / (fogEnd - fogStart), 0, 1) * fogEnabled;
+}
 // Vertex Shader Function
 VS_OUTPUT VS(VS_INPUT IN)
 {
@@ -61,6 +71,7 @@ VS_OUTPUT VS(VS_INPUT IN)
 	OUT.worldPos = worldPosition;
 
 	OUT.color = surfaceColor;
+	OUT.fogFactor = ComputeFogFactor(length(ViewPosition - worldPosition));
 
 	return OUT;
 }
@@ -121,6 +132,7 @@ float4 PS(PS_INPUT IN) : COLOR{
 	float4 kolorPoint = WyznaczPunktowe(IN.color, IN.normal, IN.view, IN.worldPos);
 
 	float4 kolor = kolorKier + kolorPoint;
+	kolor.a = 1.0f - IN.fogFactor;
 	return kolor;
 }
 
@@ -128,6 +140,9 @@ technique NoTex
 {
 	pass P
 	{
+		AlphaBlendEnable = TRUE;
+		DestBlend = INVSRCALPHA;
+		SrcBlend = SRCALPHA;
 		VertexShader = compile vs_4_0_level_9_1 VS();
 		PixelShader = compile ps_4_0_level_9_1 PS();
 	}

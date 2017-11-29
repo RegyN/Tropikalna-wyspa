@@ -22,6 +22,11 @@ float3 materialSpecular : SPECULAR;
 float  specularIntensity;
 float  materialPower : SPECULARPOWER;
 
+float3 fogColor = float3(0.1f, 0.15f, 0.2f);
+float  fogStart = 20.0f;
+float  fogEnd = 50.0f;
+float fogEnabled = 1.0f;
+
 texture textureImage;
 
 // Vertex Shader Input Structure
@@ -41,6 +46,8 @@ struct VS_OUTPUT
 	float4 worldPos : TEXCOORD3; 
 	float2 TextureCoordinate : TEXCOORD4;
 	float4 color	: COLOR0;
+	float fogFactor :FLOAT0;
+
 };
 #define	PS_INPUT VS_OUTPUT            // What comes out of VS goes into PS!
 
@@ -53,6 +60,10 @@ sampler2D TextureSampler = sampler_state {
 	AddressV = Clamp;
 };
 
+float ComputeFogFactor(float d)
+{
+	return clamp((d - fogStart) / (fogEnd - fogStart), 0, 1) * fogEnabled;
+}
 
 // Vertex Shader Function
 VS_OUTPUT VS_Tex(VS_INPUT IN)
@@ -71,10 +82,11 @@ VS_OUTPUT VS_Tex(VS_INPUT IN)
 
 	// Calculate the view vector
 	float3 worldPos = mul(IN.position, WorldMatrix).xyz;
-	OUT.view = ViewPosition - worldPos;
+	OUT.view = ViewPosition - worldPosition;
 
 	OUT.worldPos = worldPosition;
 	OUT.color = surfaceColor;
+	OUT.fogFactor = ComputeFogFactor(length(ViewPosition - worldPosition));
 
 	return OUT;
 }
@@ -91,7 +103,6 @@ float4 WyznaczKierunkowe(float4 col, float3 norm, float3 vi)
 
 	float4 specular = saturate(dirLightColor * col * specularIntensity
 		* pow(saturate(dot(normal, halfway)), materialPower));
-
 
 	return (diffuse + specular);
 }
@@ -137,13 +148,18 @@ float4 PS_Tex(PS_INPUT IN) : COLOR
 	float4 kolor = kolorPoint + kolorKier;
 	float4 kolorTekstury = tex2D(TextureSampler, IN.TextureCoordinate);
 	kolor.a = 1.0f;
-	return saturate(kolorTekstury * kolor);
+	kolor = saturate(kolorTekstury * kolor);
+	kolor.rgb = kolor.rgb*(1 - IN.fogFactor) + fogColor*IN.fogFactor;
+	return kolor;
 }
 
 technique Tex
 {
 	pass P
 	{
+		AlphaBlendEnable = TRUE;
+		DestBlend = INVSRCALPHA;
+		SrcBlend = SRCALPHA;
 		VertexShader = compile vs_4_0_level_9_1 VS_Tex();
 		PixelShader = compile ps_4_0_level_9_1 PS_Tex();
 	}

@@ -18,13 +18,10 @@ float pointLightRange;
 float3 materialEmissive : EMISSIVE;
 float3 materialAmbient	: AMBIENT;
 float4 materialDiffuse	: DIFFUSE;
-float3 materialSpecular : SPECULAR;
 float  specularIntensity;
 float  materialPower : SPECULARPOWER;
 
-Texture2D tex;
-Texture2D textured;
-Texture2D aaa;
+
 
 // Vertex Shader Input Structure
 struct VS_INPUT {
@@ -46,8 +43,18 @@ struct VS_OUTPUT
 };
 #define	PS_INPUT VS_OUTPUT            // What comes out of VS goes into PS!
 
+texture tex0;
 sampler2D TextureSampler = sampler_state {
-	Texture = (tex);
+	Texture = <tex0>;
+	MagFilter = None;
+	MinFilter = None;
+	MipFilter = None;
+	AddressU = Clamp;
+	AddressV = Clamp;
+};
+texture tex1;
+sampler2D TextureSampler2 = sampler_state {
+	Texture = <tex1>;
 	MagFilter = None;
 	MinFilter = None;
 	MipFilter = None;
