@@ -17,10 +17,12 @@ namespace Tropikalna_wyspa
         GeometricPrimitive wyspa;
         GeometricPrimitive morze;
         GeometricPrimitive dno;
+        Object3D drogowskaz;
         Object3D krysztal;
         Skybox skybox;
+        ReflectionSphere kulka;
+        
         float czasOdZmianySwiatla;
-
         Vector3 swiatloKierunkowe;
         Vector3 swiatloPunktowe;
         Color swiatloPunktoweKolor;
@@ -28,6 +30,7 @@ namespace Tropikalna_wyspa
         Camera3D kamera;
 
         Shader phong;
+        Shader texPhong;
         Shader ocean;
 
         public DemoWyspa()
@@ -66,28 +69,30 @@ namespace Tropikalna_wyspa
             obiekty = new List<Object3D>
             {
                 new Drogowskaz(Content, new Vector3(8.5f, 1.0f, 8.5f), new Vector3(-0.1f, 1.0f, -0.1f), Vector3.Forward, 0.001f),
-                new Skrzynka(Content, new Vector3(8.5f,0.6f,12f), new Vector3(0f,1f,0.55f), new Vector3(-1f,0.1f,0.07f)),
+                new Skrzynka(Content, new Vector3(8.5f,1.3f,12f), new Vector3(0f,1f,0.55f), new Vector3(-1f,0.1f,0.07f)),
                 new Krysztal(Content, new Vector3(5f, 0.0f, 9f), new Vector3(0.3f,1f,0f), Vector3.Left),
                 new Palma(Content, new Vector3(7.5f, 0.6f, 7.5f), new Vector3(-0.1f,1.0f,-0.1f), Vector3.Forward),
                 new Palma(Content, new Vector3(9.5f,-0.5f,9.6f), new Vector3(0.5f,1.0f,0.1f), Vector3.Backward)
             };
 
+            drogowskaz = obiekty[0];
             krysztal = obiekty[2];
 
             skybox = new Skybox("Skybox", Content);
+            kulka = new ReflectionSphere("Skybox", Content, new Vector3(16.0f,4.5f,16.0f), 2.0f);
 
             // TODO: Jakiś rozsądniejszy sposób przechowywania prymitywów? Połączyć z obiektami przez dziedziczenie? 
-            wyspa = GeneratorWyspy.ZrobWyspe(GraphicsDevice, 15);
-
-            morze = new SquarePrimitive(GraphicsDevice, 200);
-            dno = new SquarePrimitive(GraphicsDevice, 200);
+            wyspa = GeneratorMap.ZrobParabolicznaWyspe(GraphicsDevice, 40);
+            
+            morze = GeneratorMap.ZrobMorze(GraphicsDevice, 30);
+            dno = GeneratorMap.ZrobMorze(GraphicsDevice, 30);
         }
 
         private void PrzygotujKamere()
         {
             Matrix proj = Matrix.CreatePerspectiveFieldOfView(
                                            MathHelper.ToRadians(50f), graphics.
-                                           GraphicsDevice.Viewport.AspectRatio, 1f, 50000f);
+                                           GraphicsDevice.Viewport.AspectRatio, 1f, 80f);
 
             kamera = new Camera3D(new Vector3(5f, 5f, 25f), Vector3.Forward, Vector3.Up, proj);
         }
@@ -109,6 +114,21 @@ namespace Tropikalna_wyspa
             phong.pointLightPos = swiatloPunktowe;
             phong.pointLightColor = swiatloPunktoweKolor.ToVector4() / 1.5f;
 
+            texPhong.diffuseColor = Color.Gray;
+            texPhong.viewPosition = kamera.Position;
+            texPhong.diffuseLightDirection = swiatloKierunkowe;
+            texPhong.diffuseLightColor = Color.DimGray;
+            texPhong.materialEmissive = new Vector3(0f, 0f, 0f);
+            texPhong.materialAmbient = new Vector3(.05f, .05f, .1f);
+            texPhong.materialDiffuse = Color.White.ToVector3();
+            texPhong.materialSpecular = Color.White.ToVector3();
+            texPhong.materialPower = 50f;
+            texPhong.specularIntensity = 1f;
+            texPhong.pointLightFalloff = 1f;
+            texPhong.pointLightRange = 300f;
+            texPhong.pointLightPos = swiatloPunktowe;
+            texPhong.pointLightColor = swiatloPunktoweKolor.ToVector4() / 1.5f;
+
             ocean.diffuseColor = Color.Gray;
             ocean.viewPosition = kamera.Position;
             ocean.diffuseLightDirection = swiatloKierunkowe;
@@ -116,19 +136,21 @@ namespace Tropikalna_wyspa
             ocean.materialEmissive = new Vector3(0f, 0f, 0f);
             ocean.materialAmbient = new Vector3(.05f, .05f, .1f);
             ocean.materialDiffuse = Color.White.ToVector3();
+            phong.materialSpecular = Color.White.ToVector3();
             ocean.materialPower = 50f;
             ocean.specularIntensity = 1f;
             ocean.pointLightFalloff = 1f;
             ocean.pointLightRange = 300f;
             ocean.pointLightPos = swiatloPunktowe;
             ocean.pointLightColor = swiatloPunktoweKolor.ToVector4() / 1.5f;
+            krysztal.shader.efekt.Parameters["materialEmissive"].SetValue(swiatloPunktoweKolor.ToVector3());
         }
 
         protected override void LoadContent()
         {
             phong = new Shader(Content.Load<Effect>("NoTexturePhong"));
+            texPhong = new Shader(Content.Load<Effect>("TexturePhong"));
             ocean = new Shader(Content.Load<Effect>("OceanShader"));
-            // skybox = new Shader(Content.Load<Effect>("SkyboxShader"));
         }
 
         protected override void UnloadContent() => Content.Unload();
@@ -156,33 +178,42 @@ namespace Tropikalna_wyspa
             RasterizerState nowszy = new RasterizerState();
             nowszy.CullMode = CullMode.CullCounterClockwiseFace;
             graphics.GraphicsDevice.RasterizerState = nowszy;
+            kulka.Draw(kamera.ViewMatrix, kamera.ProjectionMatrix, kamera.Position);
+
             RysujMoimShaderem();
 
+            phong.pointLightColor = swiatloPunktoweKolor.ToVector4();
             phong.diffuseColor = Color.SandyBrown;
             phong.viewMatrix = kamera.ViewMatrix;
             phong.projectionMatrix = kamera.ProjectionMatrix;
-            phong.worldMatrix = Matrix.CreateWorld(new Vector3(0f, 1.5f, 0f), Vector3.Forward, Vector3.Up);
-            phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(0f, 1.5f, 0f), Vector3.Forward, Vector3.Up)));
-            wyspa.Draw(phong.efekt);
 
-            phong.diffuseColor = Color.DarkBlue;
-            phong.worldMatrix = Matrix.CreateWorld(new Vector3(0f, 0f, 0f), Vector3.Forward, Vector3.Up);
-            phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(0f, 0f, 0f), Vector3.Forward, Vector3.Up)));
-
-            //Texture[] array = new Texture[2];
-            //array[0] = Content.Load<Texture>("TexV");
-            //array[1] = Content.Load<Texture>("TexH");
-            //ocean.efekt.Parameters["tex"].SetValue(Content.Load<Texture>("TexH"));
-            morze.Draw(phong.efekt);
-
+            texPhong.pointLightColor = swiatloPunktoweKolor.ToVector4();
+            texPhong.diffuseColor = Color.SandyBrown;
+            texPhong.viewMatrix = kamera.ViewMatrix;
+            texPhong.projectionMatrix = kamera.ProjectionMatrix;
+            texPhong.worldMatrix = Matrix.CreateWorld(new Vector3(-13f, 1.5f, -13f), Vector3.Forward, Vector3.Up);
+            texPhong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-13f, 1.5f, -13f), Vector3.Forward, Vector3.Up)));
+            texPhong.efekt.Parameters["textureImage"].SetValue(Content.Load<Texture2D>("sand"));
+            wyspa.Draw(texPhong.efekt);
+            
             phong.diffuseColor = Color.Brown;
-            phong.worldMatrix = Matrix.CreateWorld(new Vector3(0f, -2.5f, 0f), Vector3.Forward, Vector3.Up);
-            phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(0f, 0f, 0f), Vector3.Forward, Vector3.Up)));
+            phong.worldMatrix = Matrix.CreateWorld(new Vector3(-40f, -2.5f, -40f), Vector3.Forward, Vector3.Up);
+            phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-40f, -2.5f, -40f), Vector3.Forward, Vector3.Up)));
             dno.Draw(phong.efekt);
 
+            ocean.diffuseColor = Color.White;
+            ocean.viewMatrix = kamera.ViewMatrix;
+            ocean.projectionMatrix = kamera.ProjectionMatrix;
+            ocean.worldMatrix = Matrix.CreateWorld(new Vector3(-40f, 0f, -40f), Vector3.Forward, Vector3.Up);
+            ocean.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-40f, 0f, -40f), Vector3.Forward, Vector3.Up)));
+            ocean.efekt.Parameters["PrimaryTex"].SetValue(Content.Load<Texture2D>("Sea1"));
+            ocean.efekt.Parameters["SecondaryTex"].SetValue(Content.Load<Texture2D>("Sea2"));
+            
+            morze.Draw(ocean.efekt);
+            
             base.Draw(gameTime);
         }
-        
+
         private void RysujMoimShaderem()
         {
             foreach (var obiekt in obiekty)     // TODO: możliwie dużą część tych rzeczy przenieść do metod w rysowanych obiektach

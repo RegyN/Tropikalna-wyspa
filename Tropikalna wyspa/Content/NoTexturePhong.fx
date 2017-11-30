@@ -22,9 +22,9 @@ float3 materialSpecular : SPECULAR;
 float  specularIntensity;
 float  materialPower : SPECULARPOWER;
 
-float3 fogColor = float3(0.1f, 0.15f, 0.2f);
-float  fogStart = 20.0f;
-float  fogEnd = 50.0f;
+float4 fogColor = float4(0.17f, 0.2f, 0.22f, 1.0f);
+float  fogStart = 15.0f;
+float  fogEnd = 30.0f;
 float fogEnabled = 1.0f;
 
 // Vertex Shader Input Structure
@@ -65,8 +65,7 @@ VS_OUTPUT VS(VS_INPUT IN)
 	OUT.normal = mul(IN.normal, WorldInvTransMat);
 
 	// Calculate the view vector
-	float3 worldPos = mul(IN.position, WorldMatrix).xyz;
-	OUT.view = ViewPosition - worldPos;
+	OUT.view = ViewPosition - worldPosition;
 
 	OUT.worldPos = worldPosition;
 
@@ -130,9 +129,9 @@ float4 PS(PS_INPUT IN) : COLOR{
 	float4 kolorKier = WyznaczKierunkowe(IN.color, IN.normal, IN.view);
 
 	float4 kolorPoint = WyznaczPunktowe(IN.color, IN.normal, IN.view, IN.worldPos);
-
-	float4 kolor = kolorKier + kolorPoint;
-	kolor.a = 1.0f - IN.fogFactor;
+	float4 kolorEmiss = float4(materialEmissive, 1.0f);
+	float4 kolor = (kolorKier + kolorPoint+ kolorEmiss)*(1 - IN.fogFactor) + IN.fogFactor * fogColor;
+	kolor.a = 1.0f;// -IN.fogFactor;
 	return kolor;
 }
 

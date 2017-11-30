@@ -22,9 +22,9 @@ float3 materialSpecular : SPECULAR;
 float  specularIntensity;
 float  materialPower : SPECULARPOWER;
 
-float3 fogColor = float3(0.1f, 0.15f, 0.2f);
-float  fogStart = 20.0f;
-float  fogEnd = 50.0f;
+float4 fogColor = float4(0.17f, 0.2f, 0.22f, 1.0f);
+float  fogStart = 15.0f;
+float  fogEnd = 30.0f;
 float fogEnabled = 1.0f;
 
 texture textureImage;
@@ -81,7 +81,6 @@ VS_OUTPUT VS_Tex(VS_INPUT IN)
 	OUT.normal = mul(IN.normal, WorldInvTransMat);
 
 	// Calculate the view vector
-	float3 worldPos = mul(IN.position, WorldMatrix).xyz;
 	OUT.view = ViewPosition - worldPosition;
 
 	OUT.worldPos = worldPosition;

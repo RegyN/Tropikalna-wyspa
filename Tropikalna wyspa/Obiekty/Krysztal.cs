@@ -13,7 +13,7 @@ namespace Tropikalna_wyspa
         public Krysztal(Microsoft.Xna.Framework.Content.ContentManager cm, Vector3 poz, Vector3 up, Vector3 forward, float scale = 0.1f)
             : base(cm.Load<Model>("Krysztal"), poz, up, forward, scale)
         {
-            shader = new Shader(cm.Load<Effect>("NoTexturePhong"));
+            shader = new Shader(cm.Load<Effect>("NoTexturePhong").Clone());
             shader.efekt.CurrentTechnique = shader.efekt.Techniques["NoTex"];
             shader.worldMatrix = worldMatrix;
             shader.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(worldMatrix));

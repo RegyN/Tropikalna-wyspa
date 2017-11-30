@@ -46,12 +46,14 @@
     <Compile Include="GeometricPrimitives\SquarePrimitive.cs" />
     <Compile Include="Obiekty\Camera3D.cs" />
     <Compile Include="DemoWyspa.cs" />
-    <Compile Include="GeneratorWyspy.cs" />
+    <Compile Include="GeneratorMap.cs" />
     <Compile Include="Obiekty\Krysztal.cs" />
     <Compile Include="Obiekty\Morze.cs" />
     <Compile Include="Obiekty\Object3D.cs" />
     <Compile Include="Obiekty\Palma.cs" />
     <Compile Include="Obiekty\Drogowskaz.cs" />
+    <Compile Include="Obiekty\Quad.cs" />
+    <Compile Include="Obiekty\ReflectionSphere.cs" />
     <Compile Include="Obiekty\Skybox.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shader.cs" />
@@ -65,9 +67,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\NewPhong.fx" />
     <Content Include="Content\NoTexturePhong.fx" />
     <Content Include="Content\OceanShader.fx" />
+    <Content Include="Content\Reflection.fx" />
     <Content Include="Content\SkyboxShader.fx" />
     <Content Include="Content\TexturePhong.fx" />
     <Content Include="Icon.ico" />

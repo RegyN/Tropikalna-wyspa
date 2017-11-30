@@ -3,13 +3,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Tropikalna_wyspa
 {
-    class Skrzynka : Object3D
+    class Quad : Object3D
     {
-        public Skrzynka(Microsoft.Xna.Framework.Content.ContentManager cm, Vector3 poz, Vector3 up, Vector3 forward, float scale = 0.025f)
-            :base(cm.Load<Model>("Skrzynka"), poz, up, forward, scale)
+        public Quad(Microsoft.Xna.Framework.Content.ContentManager cm, Vector3 poz, Vector3 up, Vector3 forward, float scale = 0.001f)
+            : base(cm.Load<Model>("Quad"), poz, up, forward, scale)
         {
             shader = new Shader(cm.Load<Effect>("NoTexturePhong").Clone());
-            shader.efekt.CurrentTechnique = shader.efekt.Techniques["NoTex"];
+            //shader.efekt.Parameters["textureImage"].SetValue(cm.Load<Texture>("Sea1"));
             shader.worldMatrix = worldMatrix;
             shader.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(worldMatrix));
             shader.materialEmissive = new Vector3(0f, 0f, 0f);

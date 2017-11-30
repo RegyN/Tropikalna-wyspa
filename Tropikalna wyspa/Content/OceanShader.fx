@@ -21,6 +21,10 @@ float4 materialDiffuse	: DIFFUSE;
 float  specularIntensity;
 float  materialPower : SPECULARPOWER;
 
+float4 fogColor = float4(0.17f, 0.2f, 0.22f, 1.0f);
+float  fogStart = 25.0f;
+float  fogEnd = 50.0f;
+float  fogEnabled = 1.0f;
 
 
 // Vertex Shader Input Structure
@@ -40,27 +44,33 @@ struct VS_OUTPUT
 	float4 worldPos : TEXCOORD3;
 	float2 TextureCoordinate : TEXCOORD4;
 	float4 color	: COLOR0;
+	float fogFactor : FLOAT0;
 };
 #define	PS_INPUT VS_OUTPUT            // What comes out of VS goes into PS!
 
-texture tex0;
+texture PrimaryTex;
 sampler2D TextureSampler = sampler_state {
-	Texture = <tex0>;
-	MagFilter = None;
+	Texture = <PrimaryTex>;
+	MagFilter = Linear;
 	MinFilter = None;
 	MipFilter = None;
 	AddressU = Clamp;
 	AddressV = Clamp;
 };
-texture tex1;
-sampler2D TextureSampler2 = sampler_state {
-	Texture = <tex1>;
-	MagFilter = None;
+texture SecondaryTex;
+sampler2D SecondarySampler = sampler_state {
+	Texture = <SecondaryTex>;
+	MagFilter = Linear;
 	MinFilter = None;
 	MipFilter = None;
 	AddressU = Clamp;
 	AddressV = Clamp;
 };
+
+float ComputeFogFactor(float d)
+{
+	return clamp((d - fogStart) / (fogEnd - fogStart), 0, 1) * fogEnabled;
+}
 
 // Vertex Shader Function
 VS_OUTPUT VS_Tex(VS_INPUT IN)
@@ -72,17 +82,16 @@ VS_OUTPUT VS_Tex(VS_INPUT IN)
 	OUT.position = IN.position;
 	OUT.position2 = mul(viewPosition, ProjectionMatrix);
 
-	OUT.TextureCoordinate = IN.TextureCoordinate;
-
 	// Calculate the normal vector
 	OUT.normal = mul(IN.normal, WorldInvTransMat);
 
 	// Calculate the view vector
-	float3 worldPos = mul(IN.position, WorldMatrix).xyz;
-	OUT.view = ViewPosition - worldPos;
+	OUT.view = ViewPosition - worldPosition;
 
 	OUT.worldPos = worldPosition;
+	OUT.TextureCoordinate = IN.TextureCoordinate;
 	OUT.color = surfaceColor;
+	OUT.fogFactor = ComputeFogFactor(length(ViewPosition - worldPosition));
 
 	return OUT;
 }
@@ -143,17 +152,22 @@ float4 PS_Tex(PS_INPUT IN) : COLOR
 	float4 kolorPoint = WyznaczPunktowe(IN.color, IN.normal, IN.view, IN.worldPos);
 
 	float4 kolor = kolorPoint + kolorKier;
-	float4 kolorTekstury = tex2D(TextureSampler, IN.TextureCoordinate);
-	//float4 kolorDrugiejTekstury = tex2D(TextureSampler, IN.TextureCoordinate);
-	kolor.a = 0.5f;
-	return saturate(kolorTekstury * kolor);
+	float4 tex = tex2D(TextureSampler, IN.TextureCoordinate);
+	float4 tex2 = tex2D(SecondarySampler, IN.TextureCoordinate);
+	tex = (tex * tex2)*1.3f;// / 2;
+	kolor = saturate(tex * kolor)*(1-IN.fogFactor) + IN.fogFactor*fogColor;
+	kolor.a = 0.75f;// -0.9*IN.fogFactor;
+	return kolor;
 }
 
 technique Tex
 {
 	pass P
 	{
-		VertexShader = compile vs_4_0_level_9_3 VS_Tex();
-		PixelShader = compile ps_4_0_level_9_3 PS_Tex();
+		AlphaBlendEnable = TRUE;
+		DestBlend = INVSRCALPHA;
+		SrcBlend = SRCALPHA;
+		VertexShader = compile vs_4_0_level_9_1 VS_Tex();
+		PixelShader = compile ps_4_0_level_9_1 PS_Tex();
 	}
 }

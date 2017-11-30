@@ -4,39 +4,43 @@ using Microsoft.Xna.Framework.Content;
 
 namespace Tropikalna_wyspa
 {
-    public class Skybox
-    { 
-        private Model skyBox;
+    class ReflectionSphere
+    {
+        private Model model;
         private TextureCube skyBoxTexture;
-        private Effect skyBoxEffect;
-        private float size = 50f;
+        private Effect efekt;
+        private float size;
+        private Vector3 position;
 
-        public Skybox(string skyboxTexture, ContentManager Content)
+        public ReflectionSphere(string skyboxTexture, ContentManager Content, Vector3 pos, float size = 3.0f)
         {
-            skyBox = Content.Load<Model>("szescian");
+            model = Content.Load<Model>("sphere");
             skyBoxTexture = Content.Load<TextureCube>(skyboxTexture);
-            skyBoxEffect = Content.Load<Effect>("SkyboxShader");
+            efekt = Content.Load<Effect>("Reflection");
+            position = pos;
+            this.size = size;
         }
-        
+
         public void Draw(Matrix view, Matrix projection, Vector3 cameraPosition)
         {
             // Go through each pass in the effect, but we know there is only one...
-            foreach (EffectPass pass in skyBoxEffect.CurrentTechnique.Passes)
+            foreach (EffectPass pass in efekt.CurrentTechnique.Passes)
             {
                 // Draw all of the components of the mesh, but we know the cube really
                 // only has one mesh
-                foreach (ModelMesh mesh in skyBox.Meshes)
+                foreach (ModelMesh mesh in model.Meshes)
                 {
                     // Assign the appropriate values to each of the parameters
                     foreach (ModelMeshPart part in mesh.MeshParts)
                     {
-                        part.Effect = skyBoxEffect;
-                        part.Effect.Parameters["World"].SetValue(
-                            Matrix.CreateScale(size)  * Matrix.CreateTranslation(cameraPosition)) ;
+                        part.Effect = efekt;
+                        var world = Matrix.CreateScale(size) * Matrix.CreateTranslation(position);
+                        part.Effect.Parameters["World"].SetValue(world);
                         part.Effect.Parameters["View"].SetValue(view);
                         part.Effect.Parameters["Projection"].SetValue(projection);
-                        part.Effect.Parameters["SkyBoxTexture"].SetValue(skyBoxTexture);
+                        part.Effect.Parameters["SkyboxTexture"].SetValue(skyBoxTexture);
                         part.Effect.Parameters["CameraPosition"].SetValue(cameraPosition);
+                        part.Effect.Parameters["WorldInverseTranspose"].SetValue(Matrix.Transpose(Matrix.Invert(world)));
                     }
 
                     // Draw the mesh with the skybox effect
