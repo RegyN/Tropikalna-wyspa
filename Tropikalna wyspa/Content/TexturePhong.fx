@@ -27,7 +27,7 @@ float  fogStart = 15.0f;
 float  fogEnd = 30.0f;
 float fogEnabled = 1.0f;
 
-texture textureImage;
+texture PrimaryTex;
 
 // Vertex Shader Input Structure
 struct VS_INPUT {
@@ -52,7 +52,7 @@ struct VS_OUTPUT
 #define	PS_INPUT VS_OUTPUT            // What comes out of VS goes into PS!
 
 sampler2D TextureSampler = sampler_state {
-	Texture = (textureImage);
+	Texture = (PrimaryTex);
 	MagFilter = None;
 	MinFilter = None;
 	MipFilter = None;

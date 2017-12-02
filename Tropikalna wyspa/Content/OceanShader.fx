@@ -26,6 +26,8 @@ float  fogStart = 25.0f;
 float  fogEnd = 50.0f;
 float  fogEnabled = 1.0f;
 
+float2 displacement; // Przesuwanie tekstur względem siebie w czasie
+
 
 // Vertex Shader Input Structure
 struct VS_INPUT {
@@ -54,8 +56,8 @@ sampler2D TextureSampler = sampler_state {
 	MagFilter = Linear;
 	MinFilter = None;
 	MipFilter = None;
-	AddressU = Clamp;
-	AddressV = Clamp;
+	AddressU = Wrap;
+	AddressV = Wrap;
 };
 texture SecondaryTex;
 sampler2D SecondarySampler = sampler_state {
@@ -63,8 +65,8 @@ sampler2D SecondarySampler = sampler_state {
 	MagFilter = Linear;
 	MinFilter = None;
 	MipFilter = None;
-	AddressU = Clamp;
-	AddressV = Clamp;
+	AddressU = Wrap;
+	AddressV = Wrap;
 };
 
 float ComputeFogFactor(float d)
@@ -152,11 +154,11 @@ float4 PS_Tex(PS_INPUT IN) : COLOR
 	float4 kolorPoint = WyznaczPunktowe(IN.color, IN.normal, IN.view, IN.worldPos);
 
 	float4 kolor = kolorPoint + kolorKier;
-	float4 tex = tex2D(TextureSampler, IN.TextureCoordinate);
+	float4 tex = tex2D(TextureSampler, IN.TextureCoordinate + displacement);
 	float4 tex2 = tex2D(SecondarySampler, IN.TextureCoordinate);
-	tex = (tex * tex2)*1.3f;// / 2;
+	tex = (tex*tex2)*1.3f;;
 	kolor = saturate(tex * kolor)*(1-IN.fogFactor) + IN.fogFactor*fogColor;
-	kolor.a = 0.75f;// -0.9*IN.fogFactor;
+	kolor.a = 0.75f;;
 	return kolor;
 }
 

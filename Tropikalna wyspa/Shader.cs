@@ -12,6 +12,48 @@ namespace Tropikalna_wyspa
     class Shader
     {
         public Effect efekt;
+        public Vector2 Displacement
+        {
+            set { efekt.Parameters["displacement"].SetValue(value); }
+        }
+        public float FogEnabled
+        {
+            set
+            {
+                if (value > 1.0f)
+                    value = 1.0f;
+                else if (value < 0.0f)
+                    value = 0.0f;
+                efekt.Parameters["fogEnabled"].SetValue(value);
+            }
+            get { return efekt.Parameters["fogEnabled"].GetValueSingle(); }
+        }
+        public float FogStart
+        {
+            set
+            {
+                if (value < 0.0f)
+                    value = 0.0f;
+                efekt.Parameters["fogStart"].SetValue(value);
+            }
+        }
+        public float FogEnd
+        {
+            set
+            {
+                if (value < 0.0f)
+                    value = 0.0f;
+                efekt.Parameters["fogEnd"].SetValue(value);
+            }
+        }
+        public Texture2D PrimaryTex
+        {
+            set { efekt.Parameters["PrimaryTex"].SetValue(value); }
+        }
+        public Texture2D SecondaryTex
+        {
+            set { efekt.Parameters["SecondaryTex"].SetValue(value); }
+        }
         public Matrix viewMatrix
         {
             set { efekt.Parameters["ViewMatrix"].SetValue(value); }

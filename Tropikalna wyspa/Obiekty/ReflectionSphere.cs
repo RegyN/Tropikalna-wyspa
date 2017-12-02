@@ -8,7 +8,7 @@ namespace Tropikalna_wyspa
     {
         private Model model;
         private TextureCube skyBoxTexture;
-        private Effect efekt;
+        public Effect efekt;
         private float size;
         private Vector3 position;
 

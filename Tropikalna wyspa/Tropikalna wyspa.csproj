@@ -69,6 +69,7 @@
   <ItemGroup>
     <Content Include="Content\NoTexturePhong.fx" />
     <Content Include="Content\OceanShader.fx" />
+    <Content Include="Content\PointSpriteShader.fx" />
     <Content Include="Content\Reflection.fx" />
     <Content Include="Content\SkyboxShader.fx" />
     <Content Include="Content\TexturePhong.fx" />

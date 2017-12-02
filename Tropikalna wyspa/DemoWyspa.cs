@@ -21,6 +21,9 @@ namespace Tropikalna_wyspa
         Object3D krysztal;
         Skybox skybox;
         ReflectionSphere kulka;
+        Texture2D dynamicznaTekstura;
+        Vector2 przesuniecieMorza;
+        int licznikPrzesuniecia;
         
         float czasOdZmianySwiatla;
         Vector3 swiatloKierunkowe;
@@ -45,13 +48,15 @@ namespace Tropikalna_wyspa
             PrzygotujOkno();
             
             base.Initialize();
-            // TODO: Klasa ze światłami
+
             swiatloKierunkowe = new Vector3(-12f, -1.5f, 4f);
             swiatloPunktowe = new Vector3(5f, 2.5f, 9f);
             swiatloPunktoweKolor = Color.Red;
             czasOdZmianySwiatla = 0.0f;
 
             prevKState = Keyboard.GetState();
+
+            przesuniecieMorza = new Vector2(0.0f, 0.0f);
 
             PrzygotujKamere();
             PrzygotujObiekty();
@@ -143,6 +148,8 @@ namespace Tropikalna_wyspa
             ocean.pointLightRange = 300f;
             ocean.pointLightPos = swiatloPunktowe;
             ocean.pointLightColor = swiatloPunktoweKolor.ToVector4() / 1.5f;
+            ocean.Displacement = przesuniecieMorza;
+
             krysztal.shader.efekt.Parameters["materialEmissive"].SetValue(swiatloPunktoweKolor.ToVector3());
         }
 
@@ -171,6 +178,9 @@ namespace Tropikalna_wyspa
             GraphicsDevice.Clear(Color.DarkBlue);
             
             PrzygotujShadery();
+
+            AktualizujPrzesuniecieMorza(gameTime);
+
             RasterizerState nowy = new RasterizerState();
             nowy.CullMode = CullMode.CullClockwiseFace;
             graphics.GraphicsDevice.RasterizerState = nowy;
@@ -193,7 +203,7 @@ namespace Tropikalna_wyspa
             texPhong.projectionMatrix = kamera.ProjectionMatrix;
             texPhong.worldMatrix = Matrix.CreateWorld(new Vector3(-13f, 1.5f, -13f), Vector3.Forward, Vector3.Up);
             texPhong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-13f, 1.5f, -13f), Vector3.Forward, Vector3.Up)));
-            texPhong.efekt.Parameters["textureImage"].SetValue(Content.Load<Texture2D>("sand"));
+            texPhong.PrimaryTex = Content.Load<Texture2D>("sand");
             wyspa.Draw(texPhong.efekt);
             
             phong.diffuseColor = Color.Brown;
@@ -206,8 +216,8 @@ namespace Tropikalna_wyspa
             ocean.projectionMatrix = kamera.ProjectionMatrix;
             ocean.worldMatrix = Matrix.CreateWorld(new Vector3(-40f, 0f, -40f), Vector3.Forward, Vector3.Up);
             ocean.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-40f, 0f, -40f), Vector3.Forward, Vector3.Up)));
-            ocean.efekt.Parameters["PrimaryTex"].SetValue(Content.Load<Texture2D>("Sea1"));
-            ocean.efekt.Parameters["SecondaryTex"].SetValue(Content.Load<Texture2D>("Sea2"));
+            ocean.PrimaryTex = Content.Load<Texture2D>("Sea1");
+            ocean.SecondaryTex = Content.Load<Texture2D>("Sea2");
             
             morze.Draw(ocean.efekt);
             
@@ -232,6 +242,38 @@ namespace Tropikalna_wyspa
                 obiekt.shader.pointLightColor = swiatloPunktoweKolor.ToVector4();
                 obiekt.Draw();
             }
+        }
+
+        private void PrzelaczMgle()
+        {
+            if (ocean.FogEnabled >= 0.9f)
+                WylaczMgle();
+            else
+                WlaczMgle();
+        }
+
+        private void WylaczMgle()
+        {
+            foreach (var obiekt in this.obiekty)
+            {
+                obiekt.shader.FogEnabled = 0.0f;
+            }
+            ocean.FogEnabled    = 0.0f;
+            phong.FogEnabled    = 0.0f;
+            texPhong.FogEnabled = 0.0f;
+            kulka.efekt.Parameters["fogEnabled"].SetValue(0.0f);
+        }
+
+        private void WlaczMgle()
+        {
+            foreach (var obiekt in this.obiekty)
+            {
+                obiekt.shader.FogEnabled = 1.0f;
+            }
+            ocean.FogEnabled    = 1.0f;
+            phong.FogEnabled    = 1.0f;
+            texPhong.FogEnabled = 1.0f;
+            kulka.efekt.Parameters["fogEnabled"].SetValue(1.0f);
         }
 
         private void SprawdzSterowanie(GameTime gameTime)
@@ -299,7 +341,7 @@ namespace Tropikalna_wyspa
             }
             if (kState.IsKeyDown(Keys.Space) && !prevKState.IsKeyDown(Keys.Space))
             {
-                this.PrzelaczMSAA();
+                this.PrzelaczMgle();
             }
             prevKState = kState;
             prevMState = mState;
@@ -328,24 +370,17 @@ namespace Tropikalna_wyspa
             }
         }
 
-        private void PrzelaczMSAA()
+        private void AktualizujPrzesuniecieMorza(GameTime gt)
         {
-            this.ZmienStatusMSAA(!graphics.PreferMultiSampling);
-        }
-
-        private void ZmienStatusMSAA(bool enable)
-        {
-            graphics.PreferMultiSampling = enable;
-
-            var rasterizerState = new RasterizerState
+            przesuniecieMorza = przesuniecieMorza + new Vector2(0.001f, -0.001f);
+            if(przesuniecieMorza.X > 1.0f)
             {
-                MultiSampleAntiAlias = enable,
-            };
-
-            GraphicsDevice.RasterizerState = rasterizerState;
-            GraphicsDevice.PresentationParameters.MultiSampleCount = enable ? 4 : 0;
-
-            graphics.ApplyChanges();
+                przesuniecieMorza.X = przesuniecieMorza.X - 1.0f;
+            }
+            if (przesuniecieMorza.Y > 1.0f)
+            {
+                przesuniecieMorza.Y = przesuniecieMorza.Y - 1.0f;
+            }
         }
     }
     public static class Program

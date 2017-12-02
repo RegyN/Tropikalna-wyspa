@@ -10,7 +10,7 @@ namespace Tropikalna_wyspa
             : base(cm.Load<Model>("Drogowskaz"), poz, up, forward, scale)
         {
             shader = new Shader(cm.Load<Effect>("TexturePhong").Clone());
-            shader.efekt.Parameters["textureImage"].SetValue(cm.Load<Texture>("DrogowskazTex"));
+            shader.PrimaryTex = cm.Load<Texture2D>("DrogowskazTex");
             shader.worldMatrix = worldMatrix;
             shader.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(worldMatrix));
             shader.materialEmissive = new Vector3(0f, 0f, 0f);
