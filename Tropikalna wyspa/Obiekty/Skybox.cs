@@ -9,7 +9,7 @@ namespace Tropikalna_wyspa
         private Model skyBox;
         private TextureCube skyBoxTexture;
         private Effect skyBoxEffect;
-        private float size = 50f;
+        private float size = 100f;
 
         public Skybox(string skyboxTexture, ContentManager Content)
         {

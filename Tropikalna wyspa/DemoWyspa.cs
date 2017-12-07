@@ -97,7 +97,7 @@ namespace Tropikalna_wyspa
         {
             Matrix proj = Matrix.CreatePerspectiveFieldOfView(
                                            MathHelper.ToRadians(50f), graphics.
-                                           GraphicsDevice.Viewport.AspectRatio, 1f, 80f);
+                                           GraphicsDevice.Viewport.AspectRatio, 1f, 200f);
 
             kamera = new Camera3D(new Vector3(5f, 5f, 25f), Vector3.Forward, Vector3.Up, proj);
         }
@@ -207,14 +207,14 @@ namespace Tropikalna_wyspa
             wyspa.Draw(texPhong.efekt);
             
             phong.diffuseColor = Color.Brown;
-            phong.worldMatrix = Matrix.CreateWorld(new Vector3(-40f, -2.5f, -40f), Vector3.Forward, Vector3.Up);
+            phong.worldMatrix = Matrix.CreateWorld(new Vector3(-80f, -2.5f, -80f), Vector3.Forward, Vector3.Up);
             phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-40f, -2.5f, -40f), Vector3.Forward, Vector3.Up)));
             dno.Draw(phong.efekt);
 
             ocean.diffuseColor = Color.White;
             ocean.viewMatrix = kamera.ViewMatrix;
             ocean.projectionMatrix = kamera.ProjectionMatrix;
-            ocean.worldMatrix = Matrix.CreateWorld(new Vector3(-40f, 0f, -40f), Vector3.Forward, Vector3.Up);
+            ocean.worldMatrix = Matrix.CreateWorld(new Vector3(-80f, 0f, -80f), Vector3.Forward, Vector3.Up);
             ocean.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-40f, 0f, -40f), Vector3.Forward, Vector3.Up)));
             ocean.PrimaryTex = Content.Load<Texture2D>("Sea1");
             ocean.SecondaryTex = Content.Load<Texture2D>("Sea2");
