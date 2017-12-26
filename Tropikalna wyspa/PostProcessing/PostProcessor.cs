@@ -44,7 +44,7 @@ namespace Tropikalna_wyspa
             // Draw the input texture
 
             Rectangle screenRectangle = new Rectangle(0, 0, screenWidth, screenHeight);
-            spriteBatch.Draw((Texture2D)Input, screenRectangle, Color.White);
+            spriteBatch.Draw(Input, screenRectangle, Color.White);
             // End the spritebatch and effect
             spriteBatch.End();
             // Clean up render states changed by the spritebatch

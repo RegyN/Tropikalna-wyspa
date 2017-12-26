@@ -14,10 +14,11 @@ namespace Tropikalna_wyspa
         GraphicsDevice graphicsDevice;
         public RenderCapture(GraphicsDevice GraphicsDevice)
         {
+            var width = GraphicsDevice.PresentationParameters.BackBufferWidth;
+            var height = GraphicsDevice.PresentationParameters.BackBufferHeight;
             this.graphicsDevice = GraphicsDevice;
             renderTarget = new RenderTarget2D(GraphicsDevice,
-            800, 600,
-            false, SurfaceFormat.Color, DepthFormat.Depth24);
+            width, height, false, SurfaceFormat.Color, DepthFormat.Depth24);
         }
         // Begins capturing from the graphics device
         public void Begin()

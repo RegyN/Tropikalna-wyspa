@@ -188,12 +188,23 @@ namespace Tropikalna_wyspa
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.SetRenderTarget(renderTarget);
+            renderCapture.Begin();
 
             GraphicsDevice.Clear(Color.DarkBlue);
             
             PrzygotujShadery();
+            RysujMoimShaderem(gameTime);
 
+            renderCapture.End();
+
+            postprocessor.Input = renderCapture.GetTexture();
+            postprocessor.Draw();
+
+            base.Draw(gameTime);
+        }
+
+        private void RysujMoimShaderem(GameTime gameTime)
+        {
             AktualizujPrzesuniecieMorza(gameTime);
 
             RasterizerState nowy = new RasterizerState();
@@ -203,35 +214,6 @@ namespace Tropikalna_wyspa
             RasterizerState nowszy = new RasterizerState();
             nowszy.CullMode = CullMode.CullCounterClockwiseFace;
             graphics.GraphicsDevice.RasterizerState = nowszy;
-
-            RysujMoimShaderem();
-            
-            GraphicsDevice.SetRenderTarget(null);
-            
-            int screenWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
-            int screenHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
-            var efekt = Content.Load<Effect>("BlackAndWhite");
-            // Set effect parameters if necessary
-            var viewportSize = new Vector2(screenWidth, screenHeight);
-            var textureSize = new Vector2(renderTarget.Width, renderTarget.Height);
-            // Initialize the spritebatch and effect
-            efekt.CurrentTechnique = efekt.Techniques["Grayscale"];
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, effect: efekt);
-            // Draw the input texture
-
-            Rectangle screenRectangle = new Rectangle(0, 0, screenWidth, screenHeight);
-            spriteBatch.Draw(renderTarget, screenRectangle, Color.White);
-            // End the spritebatch and effect
-            spriteBatch.End();
-            // Clean up render states changed by the spritebatch
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.BlendState = BlendState.Opaque;
-
-            base.Draw(gameTime);
-        }
-
-        private void RysujMoimShaderem()
-        {
             foreach (var obiekt in obiekty)     // TODO: możliwie dużą część tych rzeczy przenieść do metod w rysowanych obiektach
             {
                 obiekt.shader.viewMatrix = kamera.ViewMatrix;
