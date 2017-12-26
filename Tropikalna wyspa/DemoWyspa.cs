@@ -30,6 +30,12 @@ namespace Tropikalna_wyspa
         Vector3 swiatloPunktowe;
         Color swiatloPunktoweKolor;
 
+        RenderCapture renderCapture;
+        RenderTarget2D renderTarget;
+        PostProcessor postprocessor;
+
+        SpriteBatch spriteBatch;
+
         Camera3D kamera;
 
         Shader phong;
@@ -155,9 +161,16 @@ namespace Tropikalna_wyspa
 
         protected override void LoadContent()
         {
+            renderCapture = new RenderCapture(GraphicsDevice);
+            postprocessor = new PostProcessor(Content.Load<Effect>("BlackAndWhite"), GraphicsDevice);
             phong = new Shader(Content.Load<Effect>("NoTexturePhong"));
             texPhong = new Shader(Content.Load<Effect>("TexturePhong"));
             ocean = new Shader(Content.Load<Effect>("OceanShader"));
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            int screenWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
+            int screenHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
+            renderTarget = new RenderTarget2D(GraphicsDevice, screenWidth, screenHeight, false, 
+                                                SurfaceFormat.Color, DepthFormat.Depth24);
         }
 
         protected override void UnloadContent() => Content.Unload();
@@ -175,6 +188,8 @@ namespace Tropikalna_wyspa
 
         protected override void Draw(GameTime gameTime)
         {
+            GraphicsDevice.SetRenderTarget(renderTarget);
+
             GraphicsDevice.Clear(Color.DarkBlue);
             
             PrzygotujShadery();
@@ -188,39 +203,30 @@ namespace Tropikalna_wyspa
             RasterizerState nowszy = new RasterizerState();
             nowszy.CullMode = CullMode.CullCounterClockwiseFace;
             graphics.GraphicsDevice.RasterizerState = nowszy;
-            kulka.Draw(kamera.ViewMatrix, kamera.ProjectionMatrix, kamera.Position);
 
             RysujMoimShaderem();
-
-            phong.pointLightColor = swiatloPunktoweKolor.ToVector4();
-            phong.diffuseColor = Color.SandyBrown;
-            phong.viewMatrix = kamera.ViewMatrix;
-            phong.projectionMatrix = kamera.ProjectionMatrix;
-
-            texPhong.pointLightColor = swiatloPunktoweKolor.ToVector4();
-            texPhong.diffuseColor = Color.SandyBrown;
-            texPhong.viewMatrix = kamera.ViewMatrix;
-            texPhong.projectionMatrix = kamera.ProjectionMatrix;
-            texPhong.worldMatrix = Matrix.CreateWorld(new Vector3(-13f, 1.5f, -13f), Vector3.Forward, Vector3.Up);
-            texPhong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-13f, 1.5f, -13f), Vector3.Forward, Vector3.Up)));
-            texPhong.PrimaryTex = Content.Load<Texture2D>("sand");
-            wyspa.Draw(texPhong.efekt);
             
-            phong.diffuseColor = Color.Brown;
-            phong.worldMatrix = Matrix.CreateWorld(new Vector3(-80f, -2.5f, -80f), Vector3.Forward, Vector3.Up);
-            phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-40f, -2.5f, -40f), Vector3.Forward, Vector3.Up)));
-            dno.Draw(phong.efekt);
+            GraphicsDevice.SetRenderTarget(null);
+            
+            int screenWidth = GraphicsDevice.PresentationParameters.BackBufferWidth;
+            int screenHeight = GraphicsDevice.PresentationParameters.BackBufferHeight;
+            var efekt = Content.Load<Effect>("BlackAndWhite");
+            // Set effect parameters if necessary
+            var viewportSize = new Vector2(screenWidth, screenHeight);
+            var textureSize = new Vector2(renderTarget.Width, renderTarget.Height);
+            // Initialize the spritebatch and effect
+            efekt.CurrentTechnique = efekt.Techniques["Grayscale"];
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, effect: efekt);
+            // Draw the input texture
 
-            ocean.diffuseColor = Color.White;
-            ocean.viewMatrix = kamera.ViewMatrix;
-            ocean.projectionMatrix = kamera.ProjectionMatrix;
-            ocean.worldMatrix = Matrix.CreateWorld(new Vector3(-80f, 0f, -80f), Vector3.Forward, Vector3.Up);
-            ocean.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-40f, 0f, -40f), Vector3.Forward, Vector3.Up)));
-            ocean.PrimaryTex = Content.Load<Texture2D>("Sea1");
-            ocean.SecondaryTex = Content.Load<Texture2D>("Sea2");
-            
-            morze.Draw(ocean.efekt);
-            
+            Rectangle screenRectangle = new Rectangle(0, 0, screenWidth, screenHeight);
+            spriteBatch.Draw(renderTarget, screenRectangle, Color.White);
+            // End the spritebatch and effect
+            spriteBatch.End();
+            // Clean up render states changed by the spritebatch
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.BlendState = BlendState.Opaque;
+
             base.Draw(gameTime);
         }
 
@@ -242,6 +248,35 @@ namespace Tropikalna_wyspa
                 obiekt.shader.pointLightColor = swiatloPunktoweKolor.ToVector4();
                 obiekt.Draw();
             }
+
+            phong.pointLightColor = swiatloPunktoweKolor.ToVector4();
+            phong.diffuseColor = Color.SandyBrown;
+            phong.viewMatrix = kamera.ViewMatrix;
+            phong.projectionMatrix = kamera.ProjectionMatrix;
+
+            texPhong.pointLightColor = swiatloPunktoweKolor.ToVector4();
+            texPhong.diffuseColor = Color.SandyBrown;
+            texPhong.viewMatrix = kamera.ViewMatrix;
+            texPhong.projectionMatrix = kamera.ProjectionMatrix;
+            texPhong.worldMatrix = Matrix.CreateWorld(new Vector3(-13f, 1.5f, -13f), Vector3.Forward, Vector3.Up);
+            texPhong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-13f, 1.5f, -13f), Vector3.Forward, Vector3.Up)));
+            texPhong.PrimaryTex = Content.Load<Texture2D>("sand");
+            wyspa.Draw(texPhong.efekt);
+
+            phong.diffuseColor = Color.Brown;
+            phong.worldMatrix = Matrix.CreateWorld(new Vector3(-80f, -2.5f, -80f), Vector3.Forward, Vector3.Up);
+            phong.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-40f, -2.5f, -40f), Vector3.Forward, Vector3.Up)));
+            dno.Draw(phong.efekt);
+
+            ocean.diffuseColor = Color.White;
+            ocean.viewMatrix = kamera.ViewMatrix;
+            ocean.projectionMatrix = kamera.ProjectionMatrix;
+            ocean.worldMatrix = Matrix.CreateWorld(new Vector3(-80f, 0f, -80f), Vector3.Forward, Vector3.Up);
+            ocean.WorldInverseTransposeMatrix = Matrix.Transpose(Matrix.Invert(Matrix.CreateWorld(new Vector3(-40f, 0f, -40f), Vector3.Forward, Vector3.Up)));
+            ocean.PrimaryTex = Content.Load<Texture2D>("Sea1");
+            ocean.SecondaryTex = Content.Load<Texture2D>("Sea2");
+
+            morze.Draw(ocean.efekt);
         }
 
         private void PrzelaczMgle()

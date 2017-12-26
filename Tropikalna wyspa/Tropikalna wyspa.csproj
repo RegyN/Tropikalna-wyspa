@@ -55,6 +55,8 @@
     <Compile Include="Obiekty\Quad.cs" />
     <Compile Include="Obiekty\ReflectionSphere.cs" />
     <Compile Include="Obiekty\Skybox.cs" />
+    <Compile Include="PostProcessing\PostProcessor.cs" />
+    <Compile Include="PostProcessing\RenderCapture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shader.cs" />
     <Compile Include="Obiekty\Skrzynka.cs" />
@@ -67,6 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\BlackAndWhite.fx" />
     <Content Include="Content\NoTexturePhong.fx" />
     <Content Include="Content\OceanShader.fx" />
     <Content Include="Content\PointSpriteShader.fx" />

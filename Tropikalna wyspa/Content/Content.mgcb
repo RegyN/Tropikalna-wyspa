@@ -272,3 +272,9 @@
 /processorParam:TextureFormat=Color
 /build:sand.jpg
 
+#begin BlackAndWhite.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:BlackAndWhite.fx
+
