@@ -39,7 +39,7 @@ namespace Tropikalna_wyspa
                 Effect.Parameters["ScreenHeight"].
                 SetValue(screenHeight);
             // Initialize the spritebatch and effect
-            Effect.CurrentTechnique = Effect.Techniques["Grayscale"];
+            Effect.CurrentTechnique = Effect.Techniques["Tech"];
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, effect: Effect);
             // Draw the input texture
 

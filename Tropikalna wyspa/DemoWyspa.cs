@@ -1,8 +1,7 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Text;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -13,6 +12,7 @@ namespace Tropikalna_wyspa
         GraphicsDeviceManager graphics;
         KeyboardState prevKState;
         MouseState prevMState;
+        Point pozKursor;
         List<Object3D> obiekty;
         GeometricPrimitive wyspa;
         GeometricPrimitive morze;
@@ -31,8 +31,13 @@ namespace Tropikalna_wyspa
         Color swiatloPunktoweKolor;
 
         RenderCapture renderCapture;
+        RenderCapture depthCapture;
+        RenderCapture blurCapture;
         RenderTarget2D renderTarget;
-        PostProcessor postprocessor;
+        PostProcessor grayscalePP;
+        PostProcessor gaussianPP;
+        PostProcessor noPP;
+        DepthOfField dof;
 
         SpriteBatch spriteBatch;
 
@@ -41,6 +46,9 @@ namespace Tropikalna_wyspa
         Shader phong;
         Shader texPhong;
         Shader ocean;
+        Shader depth;
+
+        bool rysujGlebie = false;
 
         public DemoWyspa()
         {
@@ -162,7 +170,13 @@ namespace Tropikalna_wyspa
         protected override void LoadContent()
         {
             renderCapture = new RenderCapture(GraphicsDevice);
-            postprocessor = new PostProcessor(Content.Load<Effect>("BlackAndWhite"), GraphicsDevice);
+            depthCapture = new RenderCapture(GraphicsDevice);
+            blurCapture = new RenderCapture(GraphicsDevice);
+            dof = new DepthOfField(GraphicsDevice, Content);
+            noPP = new NullPostProcessor(GraphicsDevice, Content);
+            gaussianPP = new GaussianBlur(GraphicsDevice, Content, 2);
+            grayscalePP = new PostProcessor(Content.Load<Effect>("BlackAndWhite"), GraphicsDevice);
+            depth = new Shader(Content.Load<Effect>("DepthMap"));
             phong = new Shader(Content.Load<Effect>("NoTexturePhong"));
             texPhong = new Shader(Content.Load<Effect>("TexturePhong"));
             ocean = new Shader(Content.Load<Effect>("OceanShader"));
@@ -188,17 +202,46 @@ namespace Tropikalna_wyspa
 
         protected override void Draw(GameTime gameTime)
         {
-            renderCapture.Begin();
+            // Najpierw rysuję mapę głębi
+            depthCapture.Begin();
+            GraphicsDevice.Clear(Color.White);
+            RysujMapeGlebi(gameTime);
+            depthCapture.End();
 
+            // Potem rysuję scenę w normalny sposób
+            renderCapture.Begin();
             GraphicsDevice.Clear(Color.DarkBlue);
-            
             PrzygotujShadery();
             RysujMoimShaderem(gameTime);
-
             renderCapture.End();
+            
+            // Tworzę też rozmytą wersję normalnego renderu
+            gaussianPP.Input = renderCapture.GetTexture();
+            ((GaussianBlur)gaussianPP).ResultCapture = blurCapture;
+            gaussianPP.Draw();
 
-            postprocessor.Input = renderCapture.GetTexture();
-            postprocessor.Draw();
+            dof.DepthMap = blurCapture.GetTexture();
+            dof.Input = depthCapture.GetTexture();
+            dof.Unblurred = renderCapture.GetTexture();
+
+            // Pobieram kolor mapy głębi pod kursorem i wysyłam do filtra DoF
+            var depthMap = depthCapture.GetTexture();
+            Color[] colorArray = new Color[depthMap.Height * depthMap.Width];
+            depthMap.GetData<Color>(colorArray);
+            var kolorKursor = colorArray[pozKursor.Y * depthMap.Width + pozKursor.X];
+            dof.Focus = kolorKursor.R;
+            
+            Debug.WriteLine("X: " + pozKursor.X.ToString() + " Y: " + pozKursor.Y.ToString() + " D: " + kolorKursor.R.ToString());
+
+            noPP.Input = depthMap;
+            if (rysujGlebie)
+            {
+                dof.Draw(); 
+            }
+            else
+            {
+                noPP.Draw(); 
+            }
 
             base.Draw(gameTime);
         }
@@ -259,6 +302,40 @@ namespace Tropikalna_wyspa
             ocean.SecondaryTex = Content.Load<Texture2D>("Sea2");
 
             morze.Draw(ocean.efekt);
+        }
+
+        private void RysujMapeGlebi(GameTime gameTime)
+        {
+            AktualizujPrzesuniecieMorza(gameTime);
+
+            RasterizerState nowy = new RasterizerState();
+            nowy.CullMode = CullMode.CullClockwiseFace;
+            graphics.GraphicsDevice.RasterizerState = nowy;
+            skybox.Draw(kamera.ViewMatrix, kamera.ProjectionMatrix, kamera.Position, depth);
+            RasterizerState nowszy = new RasterizerState();
+            nowszy.CullMode = CullMode.CullCounterClockwiseFace;
+            graphics.GraphicsDevice.RasterizerState = nowszy;
+            foreach (var obiekt in obiekty)
+            {
+                depth.viewMatrix = kamera.ViewMatrix;
+                depth.projectionMatrix = kamera.ProjectionMatrix;
+                depth.worldMatrix = obiekt.worldMatrix;
+                obiekt.Draw(depth);
+            }
+
+            depth.viewMatrix = kamera.ViewMatrix;
+            depth.projectionMatrix = kamera.ProjectionMatrix;
+            depth.worldMatrix = Matrix.CreateWorld(new Vector3(-13f, 1.5f, -13f), Vector3.Forward, Vector3.Up);
+            wyspa.Draw(depth.efekt);
+            
+            depth.worldMatrix = Matrix.CreateWorld(new Vector3(-80f, -2.5f, -80f), Vector3.Forward, Vector3.Up);
+            dno.Draw(depth.efekt);
+            
+            depth.viewMatrix = kamera.ViewMatrix;
+            depth.projectionMatrix = kamera.ProjectionMatrix;
+            depth.worldMatrix = Matrix.CreateWorld(new Vector3(-80f, 0f, -80f), Vector3.Forward, Vector3.Up);
+
+            morze.Draw(depth.efekt);
         }
 
         private void PrzelaczMgle()
@@ -360,6 +437,23 @@ namespace Tropikalna_wyspa
             {
                 this.PrzelaczMgle();
             }
+            if (kState.IsKeyDown(Keys.Enter) && !prevKState.IsKeyDown(Keys.Enter))
+            {
+                rysujGlebie = !rysujGlebie;
+            }
+
+            pozKursor = mState.Position;
+            var height = GraphicsDevice.PresentationParameters.BackBufferHeight;
+            var width = GraphicsDevice.PresentationParameters.BackBufferWidth;
+            if (pozKursor.X < 0)
+                pozKursor.X = 0;
+            if (pozKursor.Y < 0)
+                pozKursor.Y = 0;
+            if (pozKursor.X >= width)
+                pozKursor.X = width-1;
+            if (pozKursor.Y >= height)
+                pozKursor.Y = height-1;
+
             prevKState = kState;
             prevMState = mState;
         }

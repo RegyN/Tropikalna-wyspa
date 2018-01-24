@@ -278,3 +278,27 @@
 /processorParam:DebugMode=Auto
 /build:BlackAndWhite.fx
 
+#begin GaussianBlur.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:GaussianBlur.fx
+
+#begin DepthMap.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:DepthMap.fx
+
+#begin NoPostProc.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:NoPostProc.fx
+
+#begin DepthOfField.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:DepthOfField.fx
+

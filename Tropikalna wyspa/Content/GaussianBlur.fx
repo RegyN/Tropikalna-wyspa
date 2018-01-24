@@ -1,10 +1,12 @@
 ﻿sampler tex;
+float2 Offsets[15];
+float Weights[15];
 
 void PixelShaderFunction(inout float4 color : COLOR0, float2 texCoord : TEXCOORD0)
 {
-	color = tex2D(tex, texCoord);
-	float intensity = 0.3*color.r + 0.59*color.g + 0.11*color.b;
-	color = float4(intensity, intensity, intensity, 1.0f);
+	color = float4(0, 0, 0, 1);
+	for (int i = 0; i < 15; i++)
+		color += tex2D(tex, texCoord + Offsets[i]) * Weights[i];
 }
 technique Tech
 {

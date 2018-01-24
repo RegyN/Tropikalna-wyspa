@@ -51,5 +51,18 @@ namespace Tropikalna_wyspa
                 }
             }
         }
+
+        public void Draw(Shader ef)
+        {
+            for (int i = 0; i < model.Meshes.Count; i++)
+            {
+                ModelMesh mesh = model.Meshes[i];
+                foreach (var part in mesh.MeshParts)
+                {
+                    part.Effect = ef.efekt;
+                }
+                mesh.Draw();
+            }
+        }
     }
 }

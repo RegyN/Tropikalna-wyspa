@@ -44,5 +44,29 @@ namespace Tropikalna_wyspa
                 }
             }
         }
+
+        public void Draw(Matrix view, Matrix projection, Vector3 cameraPosition, Shader ef)
+        {
+            // Go through each pass in the effect, but we know there is only one...
+            foreach (EffectPass pass in skyBoxEffect.CurrentTechnique.Passes)
+            {
+                // Draw all of the components of the mesh, but we know the cube really
+                // only has one mesh
+                foreach (ModelMesh mesh in skyBox.Meshes)
+                {
+                    // Assign the appropriate values to each of the parameters
+                    foreach (ModelMeshPart part in mesh.MeshParts)
+                    {
+                        ef.worldMatrix = Matrix.CreateScale(size) * Matrix.CreateTranslation(cameraPosition);
+                        ef.viewMatrix = view;
+                        ef.projectionMatrix = projection;
+                        part.Effect = ef.efekt;
+                    }
+
+                    // Draw the mesh with the skybox effect
+                    mesh.Draw();
+                }
+            }
+        }
     }
 }

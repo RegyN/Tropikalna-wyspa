@@ -55,6 +55,9 @@
     <Compile Include="Obiekty\Quad.cs" />
     <Compile Include="Obiekty\ReflectionSphere.cs" />
     <Compile Include="Obiekty\Skybox.cs" />
+    <Compile Include="PostProcessing\DepthOfField.cs" />
+    <Compile Include="PostProcessing\GaussianBlur.cs" />
+    <Compile Include="PostProcessing\NullPostProcessor.cs" />
     <Compile Include="PostProcessing\PostProcessor.cs" />
     <Compile Include="PostProcessing\RenderCapture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,6 +73,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\BlackAndWhite.fx" />
+    <Content Include="Content\DepthMap.fx" />
+    <Content Include="Content\DepthOfField.fx" />
+    <Content Include="Content\GaussianBlur.fx" />
+    <Content Include="Content\NoPostProc.fx" />
     <Content Include="Content\NoTexturePhong.fx" />
     <Content Include="Content\OceanShader.fx" />
     <Content Include="Content\PointSpriteShader.fx" />
